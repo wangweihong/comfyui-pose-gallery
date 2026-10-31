@@ -1,0 +1,177 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "pose_gallery_person_reference.png"
+    },
+    "_meta": {
+      "title": "Load Image - 选择需要保持身份和服装的人物参考图"
+    }
+  },
+  "2": {
+    "class_type": "PoseGallery",
+    "inputs": {
+      "pose_id": "pair60_P050_front"
+    },
+    "_meta": {
+      "title": "Pose Gallery 姿势图库 - 浏览并选择本地姿势原图"
+    }
+  },
+  "4": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "image2image/qwen_image_2.1_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "Load Diffusion Model - 加载Qwen Image 2.1基础模型"
+    }
+  },
+  "6": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "model": [
+        "5",
+        0
+      ],
+      "device": "auto",
+      "dtype": "default"
+    },
+    "_meta": {
+      "title": "Qwen Image 2.1 Cache - 缓存双参考图条件"
+    }
+  },
+  "7": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "text_encoders/qwen3vl_8b_bf16.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Load CLIP - 加载Qwen3-VL 8B文本与图像编码器"
+    }
+  },
+  "8": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "vae/qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "_meta": {
+      "title": "Load VAE - 加载Qwen Image 2.1配套VAE"
+    }
+  },
+  "9": {
+    "class_type": "TextEncodeQwenImage21",
+    "inputs": {
+      "clip": [
+        "7",
+        0
+      ],
+      "images.image_1": [
+        "2",
+        0
+      ],
+      "images.image_2": [
+        "101",
+        0
+      ],
+      "images.image_3": [
+        "1",
+        0
+      ],
+      "vae": [
+        "8",
+        0
+      ],
+      "prompt": "用图2人物替换图1左边的模型，用图2的人物替换图1右边的模型",
+      "negative_prompt": "",
+      "resolution": 1024
+    },
+    "_meta": {
+      "title": "Text Encode Qwen Image 2.1 - 图一为图库姿势且图二为人物参考"
+    }
+  },
+  "10": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "6",
+        0
+      ],
+      "positive": [
+        "9",
+        0
+      ],
+      "negative": [
+        "9",
+        1
+      ],
+      "latent_image": [
+        "9",
+        2
+      ],
+      "seed": 20261029,
+      "steps": 25,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1
+    },
+    "_meta": {
+      "title": "KSampler - 25步按图库姿势编辑人物"
+    }
+  },
+  "11": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "10",
+        0
+      ],
+      "vae": [
+        "8",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "VAE Decode - 解码姿态编辑结果"
+    }
+  },
+  "12": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "11",
+        0
+      ],
+      "filename_prefix": "images/qwen2.1/pose_gallery/results/pose_edit"
+    },
+    "_meta": {
+      "title": "Save Image - 保存编辑后的人物与工作流"
+    }
+  },
+  "5": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "4",
+        0
+      ],
+      "lora_name": "qwen2.1/动作编辑VNCCS_QI2_PoseStudioV2_3294845.safetensors",
+      "strength_model": 1
+    },
+    "_meta": {
+      "title": "Load LoRA - 加载Qwen2.1姿态编辑适配器"
+    }
+  },
+  "101": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "qwen21_clay_adult_full_body_clothed.png"
+    },
+    "_meta": {
+      "title": "Load Image - 选择需要保持身份和服装的人物参考图"
+    }
+  }
+}

@@ -18,6 +18,10 @@ Import [the random pose preview example](example_workflows/random_pose_preview.j
 ![Separate random node in ComfyUI](docs/random-node.png)
 
 
+## Qwen Image 2.1 two-person pose editing
+
+The [saved two-person workflow](example_workflows/02_QwenImage2.1_PoseGallery_双人姿态编辑实测.json) includes two character inputs and a gallery pose. See the [bilingual guide](example_workflows/qwen21_pair_pose_gallery.md) for input order, bundled assets and the original prompt, which currently assigns image 2 to both people. A matching API graph is included. This addition checks structure and assets without a new generation test.
+
 ## Install and browse
 
 Clone `https://github.com/wangweihong/comfyui-pose-gallery.git` inside `ComfyUI/custom_nodes/`, keep its bundled `library/`, restart ComfyUI and refresh the browser. Dependencies use ComfyUI's Pillow, NumPy, PyTorch and aiohttp; uploads require no generation model. Add **image → Pose Gallery**, open its Browse button, inspect an image and click Use to write it back. Browsing or selecting never queues a workflow.
