@@ -10,6 +10,7 @@ async function createPreview() {
   let extension;
   class Element {
     constructor() { this.style = {}; this.children = []; this.attributes = {}; }
+    addEventListener() {}
     append(...children) { this.children.push(...children); }
     setAttribute(name, value) { this.attributes[name] = value; }
   }

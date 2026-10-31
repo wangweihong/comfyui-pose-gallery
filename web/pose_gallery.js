@@ -59,7 +59,10 @@ app.registerExtension({
         app.graph.change();
         close();
       };
-      node.addWidget("button", "浏览姿势图库 · 搜索 / 分类 / 多视角", null, () => {
+      const browse = document.createElement("button");
+      browse.type = "button"; browse.textContent = "浏览姿势图库 · 搜索 / 分类 / 多视角";
+      browse.style.cssText = "width:100%;height:36px;border:1px solid #bac9bd;border-radius:6px;background:#e9efe9;color:#253c32;cursor:pointer;font:12px sans-serif;";
+      browse.addEventListener("click", () => {
         if (dialog) return;
         dialog = document.createElement("dialog");
         dialog.style.cssText = "width:96vw;height:94vh;max-width:1800px;max-height:96vh;padding:0;border:1px solid #777;border-radius:12px;background:#f7f5ef;";
@@ -78,7 +81,10 @@ app.registerExtension({
         dialog.addEventListener("cancel", event => { event.preventDefault(); close(); });
         dialog.addEventListener("click", event => { if (event.target === dialog) close(); });
         document.body.append(dialog); dialog.showModal();
-      }, { serialize: false });
+      });
+      const toolbar = document.createElement("div"); toolbar.style.cssText = "width:100%;height:42px;display:flex;align-items:center;";
+      toolbar.append(browse);
+      node.addDOMWidget("pose_browser", "button", toolbar, { serialize:false, hideOnZoom:false, getMinHeight:()=>42, getMaxHeight:()=>42 });
       node.addDOMWidget("pose_preview", "image", previewBox, { serialize: false, hideOnZoom: false, getMinHeight: () => 300, getMaxHeight: () => 500 });
       const configured = node.onConfigure;
       node.onConfigure = function () { configured?.apply(this, arguments); update(); };

@@ -1,6 +1,36 @@
 # comfyui-pose-gallery
 
+**简体中文** · [English](README.en.md)
+
 ComfyUI 本地中文姿势图库节点。参考并改编 [ai-pose-gallery-zh](https://github.com/wangweihong/ai-pose-gallery-zh) 的画廊界面：1,439 张原图，288 组姿势，最多 5 个视角。
+
+
+## 单张上传自定义姿态
+
+1. 在独立图库或节点内嵌图库的顶部点击 **上传姿态**。
+2. 选择一张现成参考图，查看预览，填写名称。另一语言名称可选；未填写时沿用已有名称，不自动翻译。顶部 **中文 / English** 切换新增上传控件、提示和自定义名称的语言，原有内置图库浏览标签保持中文。
+3. 点击 **保存到图库**。成功后切换到“自定义”来源，清除分类、搜索等筛选，并打开新素材的大图。
+4. 在大图中点击 **使用此姿势 → ComfyUI**，写回当前节点；上传和选择都不会自动运行或排队。
+
+内置多视角分组保持不变；上传的单图独立成组，不补造其他视角。分类与视角可选，默认未分类。
+
+支持静态 PNG、JPEG、WebP，一次一张，限制 **20 MiB、3200 万像素**。服务端检查实际内容，拒绝动画、损坏图片和越界路径。完整图片转为 PNG，保留尺寸和透明度；生成 800×1000 内的 WebP 预览、400×500 内的 WebP 缩略图。节点 IMAGE 输出的透明部分合成白色。上传仅导入图片，**不自动提取、抠图、去背景或修改人物**。第一版不含批量导入、编辑和删除。
+
+自定义数据保存在 **`ComfyUI/user/pose_gallery/`**，独立于节点代码与内置素材；升级代码不会覆盖：
+
+- `data/custom.json`：稳定 `u-` + UUID 编号、中英文名称、分类、原文件名、尺寸、上传时间和校验值。
+- img/（PNG）、preview/（WebP）、thumbs/（WebP）：完整图、预览与缩略图，按同一编号对应。
+- 备份时请单独备份此用户目录。本地 ComfyUI 服务的客户端共享该库，没有账号或多用户权限隔离。
+- 可用 `COMFYUI_POSE_GALLERY_USER_LIBRARY` 指定其他持久化、可写且容器内可见的目录。
+
+新增 **全部来源 / 内置 / 自定义** 筛选与独立数量统计；缺少内置索引时仍可上传与使用自定义素材。保留现有 **5 个输出**、旧编号和连线兼容；自定义编号用于 `pose_id`，`source_id` 元数据为空，不冒用原站编号。
+
+接口：`POST /pose_gallery/upload`，multipart 字段 `image`、`name`，可选 `other_name`、`language`（zh/en）, `category`、`angle`（unknown/front/top/bottom/side/diagonal）。成功返回201及 `record`、包含 `records` 和 `meta` 的 `catalog`；失败返回错误代码。索引加锁并原子替换，失败回滚本次新文件。`GET /pose_gallery/catalog` 保持数组格式，并增加 `origin=builtin/user`；`GET /pose_gallery/meta` 提供数量与缺失状态。图片接口只读取索引中登记的文件。
+
+![自定义上传预览与名称表单](docs/custom-upload-form.png)
+
+![自定义素材大图](docs/custom-upload-selected.png)
+
 
 ## 使用
 

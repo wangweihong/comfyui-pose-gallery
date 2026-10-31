@@ -351,6 +351,7 @@ main{padding:22px 0 54px}
   *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
 </style>
+<link rel="stylesheet" href="ui/custom_upload.css">
 </head>
 <body>
 <header class="site-header">
@@ -451,7 +452,7 @@ main{padding:22px 0 54px}
       <button class="viewer-nav prev" id="anglePrev" type="button" aria-label="上一个角度"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="m15 5-7 7 7 7"/></svg></button>
       <button class="viewer-nav next" id="angleNext" type="button" aria-label="下一个角度"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="m9 5 7 7-7 7"/></svg></button>
     </div>
-    <aside class="viewer-side">
+    <aside class="viewer-side"><p id="custom-source" class="gallery-user-source" hidden></p>
       <div class="viewer-heading">
         <div class="viewer-eyebrow"><span id="viewerNumber">POSE</span><span class="viewer-position" id="viewerPosition"></span></div>
         <h2 id="viewerTitle">姿势详情</h2>
@@ -476,6 +477,7 @@ main{padding:22px 0 54px}
   <div class="info-content" id="infoContent"></div>
 </dialog>
 
+<script src="ui/custom_upload.mjs"></script>
 <script>
 (() => {
 'use strict';
@@ -492,6 +494,7 @@ const icon = name => ({
 }[name] || '');
 
 let DATA = [];
+let SOURCE_ROWS = [];
 let GROUPS = [];
 let LINES = [];
 let currentList = [];
@@ -502,10 +505,11 @@ const viewerState = { index: 0, item: null, token: 0, returnFocus: null };
 function groupKey(item) { return `${item.体系}|${item.姿势编号 || item.id}`; }
 
 function prepareData(data) {
-  DATA = data.map(row => ({...row, '原图': './assets/' + row.原图, '缩略图': './assets/' + row.缩略图}));
+  SOURCE_ROWS = data; GROUPS = []; groupMap.clear();
+  DATA = data.map(original => {const row=original.origin==='user'?{...original,姿势名称:uploads.name(original)}:original;return ({...row, '原图': './assets/' + row.原图, '缩略图': './assets/' + row.缩略图});});
   LINES = [...new Set(DATA.map(item => item.体系))];
   DATA.forEach(item => {
-    item._search = `${item.姿势名称} ${item.id} ${item.分类} ${item.姿势编号}`.toLowerCase();
+    item._search = `${item.姿势名称} ${item.name_zh||''} ${item.name_en||''} ${item.id} ${item.分类} ${item.姿势编号}`.toLowerCase();
     const key = groupKey(item);
     if (!groupMap.has(key)) {
       const group = { key, system: item.体系, number: item.姿势编号, name: item.姿势名称, category: item.分类, items: [], angles: {}, order: [] };
@@ -544,7 +548,7 @@ function renderAngleFilter() {
 }
 
 function hit(item) {
-  return (!state.line || item.体系 === state.line) &&
+  return uploads.matches(item) && (!state.line || item.体系 === state.line) &&
     (!state.category || item.分类 === state.category) &&
     (!state.angle || item.角度 === state.angle) &&
     (!state.query || item._search.includes(state.query));
@@ -562,7 +566,7 @@ function computeList() {
 }
 
 function cardImage(item, name, number) {
-  return `<div class="card-image"><img class="main-image" src="${esc(item.缩略图)}" alt="${esc(name)} · ${esc(item.角度)}" loading="lazy" decoding="async"><div class="image-top"><span class="pose-no">${esc(number)}</span><span class="angle-tag">${esc(item.角度)}</span></div><span class="zoom-hint">${icon('expand')}</span></div>`;
+  return `<div class="card-image"><img class="main-image" src="${esc(item.缩略图)}" alt="${esc(name)} · ${esc(item.角度)}" loading="lazy" decoding="async"><div class="image-top"><span class="pose-no">${esc(item.origin==='user'?(uploads.language==='en'?'Custom':'自定义'):number)}</span><span class="angle-tag">${esc(item.角度)}</span></div><span class="zoom-hint">${icon('expand')}</span></div>`;
 }
 
 function poseCard(entry, index) {
@@ -808,11 +812,15 @@ function showViewer() {
   $('#viewerTitle').textContent = item.姿势名称;
   $('#viewerId').textContent = item.id;
   $('#copyId').textContent = '复制 ID';
-  $('#viewerMeta').innerHTML = [['体系', item.体系], ['姿势编号', item.姿势编号 || '—'], ['动作分类', item.分类 || '—'], ['当前视角', item.角度 || '—'], ['图片规格', '900 × 1200 PNG']].map(([key, value]) => `<dt>${key}</dt><dd>${esc(value)}</dd>`).join('');
+  $('#viewerMeta').innerHTML = [['体系', item.体系], ['姿势编号', item.姿势编号 || '—'], ['动作分类', item.分类 || '—'], ['当前视角', item.角度 || '—'], ['图片规格', item.origin==='user'?`${item.w} × ${item.h} PNG`:'900 × 1200 PNG']].map(([key, value]) => `<dt>${key}</dt><dd>${esc(value)}</dd>`).join('');
+  $('#viewerAngles').previousElementSibling.hidden=group.order.length<2;
   $('#viewerAngles').innerHTML = ANGLES.filter(angle => group.angles[angle]).map(angle => {
     const angleItem = group.angles[angle];
     return `<button class="angle-thumb${angleItem === item ? ' on' : ''}" type="button" data-angle="${esc(angle)}" aria-label="切换到${esc(angle)}"><img src="${esc(angleItem.缩略图)}" alt="${esc(angle)}"><span>${esc(angle)}</span></button>`;
   }).join('');
+  $('#custom-source').hidden=item.origin!=='user';
+  $('#custom-source').textContent=item.origin==='user'?`${uploads.language==='en'?'Uploaded file':'用户上传'}: ${item.original_filename}\n${new Date(item.uploaded_at).toLocaleString()}`:'';
+  $('#anglePrev').disabled=group.order.length<2;$('#angleNext').disabled=group.order.length<2;
   const download = $('#downloadImage');
   download.href = item.原图;
   download.setAttribute('download', `${item.id}.png`);
@@ -924,6 +932,13 @@ window.addEventListener('message', event => {
   if (current) $('#usePose').title = '当前节点：' + current.id;
 });
 window.parent.postMessage({type: 'pose-gallery-ready'}, location.origin);
+
+const uploads = window.GalleryUploads.mount({
+  kind:'pose',toolbar:$('.top-actions'),filters:$('.controls-inner'),
+  onSource(){resetView();},
+  onLanguage(){if(!$('#viewer').hidden)closeViewer();prepareData(SOURCE_ROWS);},
+  onUploaded(payload,id){clearTimeout(searchTimer);state.line='';state.category='';state.angle='';state.query='';state.view='pose';state.shown=PAGE_SIZE.pose;$('#searchInput').value='';prepareData(payload.records);uploads.update(payload.meta);const i=currentList.findIndex(entry=>entry.item.id===id);if(i>=0)openViewer(i,currentList[i].item);}
+});
 
 fetch('./catalog')
   .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
