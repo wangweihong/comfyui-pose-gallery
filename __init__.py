@@ -1,6 +1,9 @@
 """comfyui-pose-gallery: browse local pose references and output an IMAGE."""
 import asyncio
 import logging
+import random
+import uuid
+from . import catalog as _random_catalog
 import hashlib
 import json
 import numpy as np
@@ -46,6 +49,61 @@ class PoseGallery:
             tensor = torch.from_numpy(np.asarray(img).astype(np.float32) / 255.0).unsqueeze(0)
         description = ' / '.join(row.get(k, '') for k in ('体系', '分类', '姿势名称', '角度') if row.get(k))
         return (tensor, width, height, pose_id, description)
+
+class RandomPoseGallery(PoseGallery):
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {"origin": (["all", "builtin", "user"], {"default": "all",
+                    "tooltip": "随机来源：全部 / 内置 / 自定义。Random source: all / built-in / custom."})},
+                "optional": {"language": (["zh", "en"], {"default": "zh",
+                    "tooltip": "新节点界面与提示语言；数据输出沿用原节点。UI/error language; data outputs retain the original node's semantics."})}}
+
+    FUNCTION = "load_random"
+    DESCRIPTION = "每次运行工作流时，从可用姿态原图中自动随机抽取一张；保留原节点的5个输出。"
+
+    @classmethod
+    def _candidates(cls, origin="all", language="zh"):
+        if origin not in ("all", "builtin", "user"):
+            raise ValueError("Invalid random source" if language == "en" else "无效的随机来源")
+        available = []
+        # records() validates registration and canonical paths once for the whole pool.
+        # Resolve against the correct root here to avoid reloading the entire index per file.
+        for row in records():
+            if origin != "all" and row["origin"] != origin:
+                continue
+            root = _random_catalog.USER_LIBRARY if row["origin"] == "user" else _random_catalog.LIBRARY
+            target = (root / row['原图']).resolve()
+            if not target.is_relative_to(root):
+                raise ValueError("Original image path escapes the library" if language == "en" else "原图路径越出图库目录")
+            if target.is_file():
+                available.append(row)
+        if not available:
+            raise ValueError("No available originals in this source. Install the library, upload a reference, or change the source."
+                             if language == "en" else "当前来源没有可用姿态原图，请安装素材库、上传参考图或切换来源。")
+        return available
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, origin="all", language="zh"):
+        try:
+            cls._candidates(origin, language)
+        except (ValueError, OSError) as exc:
+            return str(exc)
+        return True
+
+    @classmethod
+    def IS_CHANGED(cls, origin="all", language="zh"):
+        # Re-execute for every queued prompt; the fingerprint is JSON-safe.
+        return uuid.uuid4().hex
+
+    def load_random(self, origin="all", language="zh"):
+        selected = random.choice(self._candidates(origin, language))
+        result = super().load_pose(selected["id"])
+        if selected["origin"] == "user":
+            name = selected["name_en"] if language == "en" else selected["name_zh"]
+        else:
+            name = selected.get("姿势名称") or selected.get("title") or selected.get("分类") or selected["id"]
+        return {"ui": {"pose_id": [result[3]], "name": [name]}, "result": result}
+
 
 routes = PromptServer.instance.routes
 
@@ -126,8 +184,8 @@ async def metadata_route(request):
         return web.json_response({"error":"storage_error"}, status=503)
 
 
-NODE_CLASS_MAPPINGS = {'PoseGallery': PoseGallery}
-NODE_DISPLAY_NAME_MAPPINGS = {'PoseGallery': 'Pose Gallery 姿势图库'}
+NODE_CLASS_MAPPINGS = {"PoseGallery": PoseGallery, "RandomPoseGallery": RandomPoseGallery}
+NODE_DISPLAY_NAME_MAPPINGS = {'PoseGallery': 'Pose Gallery 姿势图库', 'RandomPoseGallery': 'Random Pose Gallery 随机姿势图库'}
 WEB_DIRECTORY = './web'
 __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']
 

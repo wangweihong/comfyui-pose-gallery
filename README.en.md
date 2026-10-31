@@ -4,6 +4,20 @@
 
 A local pose reference gallery for ComfyUI. Built-in assets, existing IDs and the node's 5 outputs remain compatible with existing workflows. See the [Chinese README](README.md) for the original dataset, examples, model configurations and source notices.
 
+
+## Automatic random selection: a separate node
+
+Add **image → Pose Gallery → Random Pose Gallery**, connect `image` to your workflow or Preview Image, and run. Each execution draws a new reference automatically. Set `origin` to `all`, `builtin` or `user`. Pose sampling uses individual view records and never fabricates additional angles.
+
+The original **PoseGallery** keeps its inputs, fixed-selection behavior, cache and 5 output sockets. The new node uses those same outputs for one actual selected image and displays its executed ID and preview. Its `language` controls the new UI, errors and user-entered preview names; port values retain the original node's semantics without invented translations.
+
+Draws may repeat by chance and are independent of gallery filters. Missing originals are skipped; an empty usable source raises a clear error. Saved preview IDs never freeze future draws. To keep a result, copy `pose_id` into the original selector. The random node does not enqueue or start tasks itself.
+
+Import [the random pose preview example](example_workflows/random_pose_preview.json); a matching API graph is included.
+
+![Separate random node in ComfyUI](docs/random-node.png)
+
+
 ## Install and browse
 
 Clone `https://github.com/wangweihong/comfyui-pose-gallery.git` inside `ComfyUI/custom_nodes/`, keep its bundled `library/`, restart ComfyUI and refresh the browser. Dependencies use ComfyUI's Pillow, NumPy, PyTorch and aiohttp; uploads require no generation model. Add **image → Pose Gallery**, open its Browse button, inspect an image and click Use to write it back. Browsing or selecting never queues a workflow.
@@ -37,6 +51,7 @@ Custom assets are stored at **`ComfyUI/user/pose_gallery/`**, independently of n
 ```bash
 python3 -m unittest discover -s tests -v
 node --check web/custom_upload.mjs
+node --test tests/test_random_frontend.cjs
 ```
 
 ![Upload preview and bilingual names](docs/custom-upload-form.png)

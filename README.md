@@ -5,6 +5,20 @@
 ComfyUI 本地中文姿势图库节点。参考并改编 [ai-pose-gallery-zh](https://github.com/wangweihong/ai-pose-gallery-zh) 的画廊界面：1,439 张原图，288 组姿势，最多 5 个视角。
 
 
+
+## 每次运行随机：独立节点
+
+添加 **image → Pose Gallery → Random Pose Gallery 随机姿势图库**，将 `image` 接入后续工作流或 Preview Image。每次执行会重新随机抽取一张原图，无需点击随机按钮。`origin` 可选 `all`（全部）、`builtin`（内置）或 `user`（自定义）。姿态按单张视角记录抽样，不自动生成或补造其他角度。
+
+原 **PoseGallery** 的输入、固定选图、缓存、5个输出和连线均保持不变。新节点沿用这5个输出，所有数据对应同一张实际抽中的素材；执行后显示编号和预览。新节点的 `language` 切换界面、提示及自定义预览名称语言，端口数据仍沿用原节点语义，不补造内置描述的译文。
+
+抽样可能偶然重复，不受浏览页面筛选影响；缺失原图会跳过，无可用图片时明确报错。保存的预览编号不参与下次抽样。需要固定结果时，将输出 `pose_id` 填入原节点。新节点本身不会启动或追加任务。
+
+导入 [随机姿态预览示例](example_workflows/random_pose_preview.json)，附同名 API 工作流。
+
+![独立随机姿态节点实测](docs/random-node.png)
+
+
 ## 单张上传自定义姿态
 
 1. 在独立图库或节点内嵌图库的顶部点击 **上传姿态**。
@@ -204,3 +218,7 @@ LoRA 强度 1，25 步、CFG 1、Euler/simple、种子 20261029，不叠加 Turb
 ## 验证
 
 `python -m unittest discover -s tests -v` 检查目录边界、非法 ID、文件缺失和符号链接逃逸。本次还实际验证了 ComfyUI 注册、图库接口、浏览器搜索与视角切换、选择写回和完整 SFT 50 步生成。
+
+```bash
+node --test tests/test_random_frontend.cjs
+```

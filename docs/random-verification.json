@@ -1,0 +1,81 @@
+{
+  "random_runs": [
+    {
+      "prompt_id": "06bf8a2b-54a5-4d1a-a039-6627c23753ce",
+      "source": "all",
+      "selected_id": "upper80v2_P029_front",
+      "name": "耸肩挤胸（双手下方交叠）",
+      "cached_nodes": [],
+      "dimensions": [
+        900,
+        1200
+      ]
+    },
+    {
+      "prompt_id": "d52ba772-07cf-4ead-bf9e-8cfd7a324865",
+      "source": "all",
+      "selected_id": "upper80v2_P016_side",
+      "name": "拜托手势（双手合十）",
+      "cached_nodes": [],
+      "dimensions": [
+        900,
+        1200
+      ]
+    },
+    {
+      "prompt_id": "7e81650e-8424-4593-bd46-9c5ebd9c341b",
+      "source": "all",
+      "selected_id": "upper80v2_P064_diag",
+      "name": "俯卧单手托胸",
+      "cached_nodes": [],
+      "dimensions": [
+        900,
+        1200
+      ]
+    },
+    {
+      "prompt_id": "f5e50d18-cf5a-4486-a4ab-b6974ef29a8c",
+      "source": "builtin",
+      "selected_id": "upper80v2_P001_high",
+      "name": "胸前双手比心",
+      "cached_nodes": [],
+      "dimensions": [
+        900,
+        1200
+      ]
+    },
+    {
+      "prompt_id": "8c8df13b-c6a3-4c25-b951-47c9c23dbaa8",
+      "source": "user",
+      "selected_id": "u-4f19bf2d7e04439281c473325a36d14c",
+      "name": "自定义示例·站姿 <A> & 测试",
+      "cached_nodes": [],
+      "dimensions": [
+        900,
+        1200
+      ]
+    }
+  ],
+  "fixed_runs": [
+    {
+      "prompt_id": "0504c9c7-56d7-4180-82a5-18e3daf7fd16",
+      "cached_nodes": []
+    },
+    {
+      "prompt_id": "478472e6-d91f-4ce7-9c19-2d7928fdf609",
+      "cached_nodes": [
+        "1",
+        "2"
+      ]
+    }
+  ],
+  "python_tests": 21,
+  "new_frontend_tests": 3,
+  "original_node_source_unchanged": true,
+  "port_count": 5,
+  "ui_execution_preview_verified": true,
+  "original_browser_unchanged": true,
+  "screenshots": [
+    "docs/random-node.png"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "RandomPoseGallery": {
+    "display_name": "Random Pose Gallery",
+    "description": "Draw a reference on every execution; the original selector is unchanged.",
+    "inputs": {
+      "origin": {
+        "name": "Random source",
+        "tooltip": "all: all references; builtin: bundled; user: custom uploads."
+      },
+      "language": {
+        "name": "UI / error language"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Image"
+      },
+      "1": {
+        "name": "Width"
+      },
+      "2": {
+        "name": "Height"
+      },
+      "3": {
+        "name": "Pose ID"
+      },
+      "4": {
+        "name": "Description"
+      }
+    }
+  }
+}

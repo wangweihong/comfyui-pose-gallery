@@ -1,0 +1,32 @@
+{
+  "RandomPoseGallery": {
+    "display_name": "Random Pose Gallery 随机姿势图库",
+    "description": "每次运行自动重新抽取参考图，原节点保持不变。",
+    "inputs": {
+      "origin": {
+        "name": "随机来源",
+        "tooltip": "all：全部；builtin：内置；user：自定义。"
+      },
+      "language": {
+        "name": "界面与提示语言"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "图像"
+      },
+      "1": {
+        "name": "宽度"
+      },
+      "2": {
+        "name": "高度"
+      },
+      "3": {
+        "name": "姿态编号"
+      },
+      "4": {
+        "name": "描述"
+      }
+    }
+  }
+}

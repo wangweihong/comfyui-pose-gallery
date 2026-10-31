@@ -1,0 +1,24 @@
+{
+  "1": {
+    "class_type": "RandomPoseGallery",
+    "inputs": {
+      "origin": "all",
+      "language": "zh"
+    },
+    "_meta": {
+      "title": "Random Pose Gallery 随机姿势图库 - 每次运行自动抽取姿态"
+    }
+  },
+  "2": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Preview Image - 检查本次随机姿态输出"
+    }
+  }
+}
