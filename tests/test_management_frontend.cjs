@@ -24,7 +24,7 @@ test('manual bulk cleanup, full removal, replacement and reapply in the actual g
     const identity=await first.getAttribute('data-id');
     await first.check();
     assert.equal(await manager.locator('.library-manager-row input:checked').count(),5,'default selection includes the whole pose group');
-    await manager.getByRole('button',{name:'预览：清理原图',exact:true}).click();
+    await manager.getByRole('button',{name:'清理原图',exact:true}).click();
     await page.locator('#library-manager-plan').waitFor({state:'visible'});
     let status=await (await page.request.get(base+'/pose_gallery/manage')).json();
     assert.ok(status.records.every(row=>row.installed_original),'preview must not delete files');
@@ -46,7 +46,7 @@ test('manual bulk cleanup, full removal, replacement and reapply in the actual g
     assert.equal(status.records.filter(row=>!row.installed_original).length,5);
     await manager.locator('.library-manager-group input').uncheck();
     await manager.locator(`input[data-id="${identity}"]`).check();
-    await manager.getByRole('button',{name:'预览：完全清理',exact:true}).click();
+    await manager.getByRole('button',{name:'完全清理',exact:true}).click();
     await page.locator('#library-manager-confirm').click();
     await page.locator('#library-manager-status').getByText(/完成 1 个 ID/).waitFor();
     let catalog=await (await page.request.get(base+'/pose_gallery/catalog')).json();

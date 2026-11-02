@@ -7,7 +7,7 @@
     search:['搜索名称或 ID','Search name or ID'],all:['全部','All'],system:['体系','System'],category:['分类','Category'],state:['状态','State'],
     default:['默认','Default'],thumb_only:['仅保留缩略图','Thumbnail only'],removed:['完全清理','Fully removed'],replace:['替换内置','Replacement'],
     select:['选择筛选结果','Select filtered'],clear:['清空选择','Clear selection'],group:['选择时包含整组视角','Include all views of a selected pose'],
-    originals:['预览：清理原图','Preview: remove originals'],remove:['预览：完全清理','Preview: remove all files'],reset:['预览：取消规则','Preview: cancel rules'],
+    originals:['清理原图','Remove originals'],remove:['完全清理','Remove all files'],reset:['取消规则','Cancel rules'],
     reapply:['应用已保存规则…','Apply saved rules…'],close:['关闭','Close'],choose:['选择替换图片','Choose replacement image'],
     stage:['保存替换规则并预览','Save replacement rule and preview'],
     replacementHelp:['替换需仅选择一个 ID。支持静态 PNG/JPEG/WebP，最多 20 MiB、3200 万像素；会同时生成新缩略图。保存后保留源文件，点击“确认执行”才覆盖内置图片。','Select exactly one ID to replace. Static PNG/JPEG/WebP, up to 20 MiB and 32 megapixels. A new thumbnail is generated. Saving keeps the source; built-in files change only after Confirm.'],

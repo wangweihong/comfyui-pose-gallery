@@ -227,6 +227,7 @@ main{padding:22px 0 54px}
 .download-btn:hover{background:var(--accent-dark)}
 .open-btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--text-2)}
 .open-btn:hover{border-color:var(--accent);color:var(--accent)}
+#openImage,#manage-current-asset{grid-column:1/-1}
 .keyboard-help{margin-top:auto;color:var(--text-3);font-size:10px;line-height:2}
 .keyboard-help kbd{display:inline-block;min-width:20px;padding:0 4px;border:1px solid var(--line-strong);border-radius:4px;background:var(--surface-2);color:var(--text-2);font:10px/18px var(--font);text-align:center}
 .info-dialog{width:min(580px,calc(100% - 32px));max-height:min(760px,86dvh);padding:0;border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--text);box-shadow:0 24px 80px rgba(15,20,35,.22);overflow:auto}
@@ -987,8 +988,8 @@ const uploads = window.GalleryUploads.mount({
 });
 
 let manager;
-const manageCurrent=document.createElement('button');manageCurrent.type='button';manageCurrent.hidden=true;
-manageCurrent.onclick=()=>manager.show(viewerState.item?.id);$('#custom-source').after(manageCurrent);
+const manageCurrent=document.createElement('button');manageCurrent.type='button';manageCurrent.id='manage-current-asset';manageCurrent.className='open-btn';manageCurrent.hidden=true;
+manageCurrent.onclick=()=>manager.show(viewerState.item?.id);$('#openImage').after(manageCurrent);
 manager=window.PoseLibraryManager.mount({toolbar:$('.gallery-custom-toolbar'),language:uploads.language,
   async onChanged(){
     closeViewer();
