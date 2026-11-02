@@ -1,0 +1,1897 @@
+{
+  "id": "d4063c2c-fcb7-4a51-acbe-13ca5a7d9a10",
+  "revision": 2,
+  "last_node_id": 120,
+  "last_link_id": 82,
+  "nodes": [
+    {
+      "id": 23,
+      "type": "CostumeGallery",
+      "pos": [
+        -54.41172443718936,
+        1837.2083520876884
+      ],
+      "size": [
+        419.3072875976562,
+        590
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "服装编号",
+          "name": "costume_id",
+          "type": "STRING",
+          "widget": {
+            "name": "costume_id"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "界面与输出语言",
+          "name": "language",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "language"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "localized_name": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            51
+          ]
+        },
+        {
+          "label": "宽度",
+          "localized_name": "宽度",
+          "name": "width",
+          "type": "INT",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "label": "高度",
+          "localized_name": "高度",
+          "name": "height",
+          "type": "INT",
+          "slot_index": 2,
+          "links": []
+        },
+        {
+          "label": "服装编号",
+          "localized_name": "服装编号",
+          "name": "costume_id",
+          "type": "STRING",
+          "slot_index": 3,
+          "links": []
+        },
+        {
+          "label": "描述",
+          "localized_name": "描述",
+          "name": "description",
+          "type": "STRING",
+          "slot_index": 4,
+          "links": []
+        },
+        {
+          "label": "英文关键词",
+          "localized_name": "英文关键词",
+          "name": "keywords_en",
+          "type": "STRING",
+          "slot_index": 5,
+          "links": []
+        },
+        {
+          "label": "服装名称",
+          "localized_name": "服装名称",
+          "name": "costume",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "title": "Costume Gallery 服装图库 - 选择第一阶段目标服装",
+      "properties": {
+        "Node name for S&R": "CostumeGallery",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "costume_id": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "SPR-0085",
+        "zh",
+        "",
+        ""
+      ],
+      "widgets_values_named": {
+        "costume_id": "SPR-0085",
+        "language": "zh",
+        "costume_browser": "",
+        "costume_preview": ""
+      }
+    },
+    {
+      "id": 30,
+      "type": "PortraitGallery",
+      "pos": [
+        -504.84457186449436,
+        2084.9410964854037
+      ],
+      "size": [
+        419.4712890625,
+        590
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "人像编号",
+          "name": "portrait_id",
+          "type": "STRING",
+          "widget": {
+            "name": "portrait_id"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "界面与输出语言",
+          "name": "language",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "language"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Image",
+          "localized_name": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            59
+          ]
+        },
+        {
+          "label": "Width",
+          "localized_name": "宽度",
+          "name": "width",
+          "type": "INT",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "label": "Height",
+          "localized_name": "高度",
+          "name": "height",
+          "type": "INT",
+          "slot_index": 2,
+          "links": []
+        },
+        {
+          "label": "Portrait ID",
+          "localized_name": "人像编号",
+          "name": "portrait_id",
+          "type": "STRING",
+          "slot_index": 3,
+          "links": []
+        },
+        {
+          "label": "Description",
+          "localized_name": "描述",
+          "name": "description",
+          "type": "STRING",
+          "slot_index": 4,
+          "links": []
+        },
+        {
+          "label": "Reference type",
+          "localized_name": "参考类型",
+          "name": "section",
+          "type": "STRING",
+          "slot_index": 5,
+          "links": []
+        },
+        {
+          "label": "Portrait name",
+          "localized_name": "人像名称",
+          "name": "portrait",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "title": "Portrait Gallery 人像图库 - 选择第一阶段目标人物身份",
+      "properties": {
+        "Node name for S&R": "PortraitGallery",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "portrait_id": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "ffadc16064c",
+        "en",
+        "",
+        ""
+      ],
+      "widgets_values_named": {
+        "portrait_id": "ffadc16064c",
+        "language": "en",
+        "portrait_browser": "",
+        "portrait_preview": ""
+      }
+    },
+    {
+      "id": 31,
+      "type": "UNETLoader",
+      "pos": [
+        423.66301998856,
+        1874.9410964854044
+      ],
+      "size": [
+        439.0771240234375,
+        130
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "UNet名称",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "数据类型",
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "weight_dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            33,
+            81
+          ]
+        }
+      ],
+      "title": "Load Diffusion Model - 两阶段共用Qwen Image 2.1基础权重",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "UNETLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "unet_name": true,
+            "weight_dtype": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "image2image/qwen_image_2.1_bf16.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "image2image/qwen_image_2.1_bf16.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 32,
+      "type": "QwenImage21Cache",
+      "pos": [
+        405.9302755908443,
+        2048.5922821728673
+      ],
+      "size": [
+        400.5837158203125,
+        130
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 33
+        },
+        {
+          "localized_name": "device",
+          "name": "device",
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "dtype",
+          "name": "dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            38
+          ]
+        }
+      ],
+      "title": "Qwen Image 2.1 Cache - 缓存第一阶段人物与服装参考条件",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "QwenImage21Cache",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "device": true,
+            "dtype": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "auto",
+        "default"
+      ],
+      "widgets_values_named": {
+        "device": "auto",
+        "dtype": "default"
+      }
+    },
+    {
+      "id": 33,
+      "type": "CLIPLoader",
+      "pos": [
+        423.66301998856,
+        2234.9410964854037
+      ],
+      "size": [
+        350,
+        130
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "CLIP名称",
+          "name": "clip_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "clip_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "类型",
+          "name": "type",
+          "type": "COMBO",
+          "widget": {
+            "name": "type"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "设备",
+          "name": "device",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 0,
+          "links": [
+            34,
+            74
+          ]
+        }
+      ],
+      "title": "Load CLIP - 加载换脸阶段视觉文本编码器",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "CLIPLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "clip_name": true,
+            "type": true,
+            "device": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "text_encoders/qwen3vl_8b_bf16.safetensors",
+        "qwen_image",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "text_encoders/qwen3vl_8b_bf16.safetensors",
+        "type": "qwen_image",
+        "device": "default"
+      }
+    },
+    {
+      "id": 34,
+      "type": "VAELoader",
+      "pos": [
+        423.66301998856,
+        2434.9410964854037
+      ],
+      "size": [
+        350,
+        130
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "vae名称",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 0,
+          "links": [
+            43,
+            77,
+            37,
+            75
+          ]
+        }
+      ],
+      "title": "Load VAE - 加载Qwen Image 2.1图像编解码器",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "VAELoader",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "vae_name": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "vae/qwen_image_2.1_vae_bf16.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "vae/qwen_image_2.1_vae_bf16.safetensors"
+      }
+    },
+    {
+      "id": 35,
+      "type": "TextEncodeQwenImage21",
+      "pos": [
+        953.66301998856,
+        1874.9410964854044
+      ],
+      "size": [
+        673.1670766594148,
+        306
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 34
+        },
+        {
+          "localized_name": "image_1",
+          "name": "images.image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 57
+        },
+        {
+          "localized_name": "image_2",
+          "name": "images.image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 51
+        },
+        {
+          "localized_name": "image_3",
+          "name": "images.image_3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 59
+        },
+        {
+          "localized_name": "image_4",
+          "name": "images.image_4",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "image_5",
+          "name": "images.image_5",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": 37
+        },
+        {
+          "localized_name": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "negative_prompt",
+          "name": "negative_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "negative_prompt"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "resolution",
+          "name": "resolution",
+          "type": "INT",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            39
+          ]
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "slot_index": 1,
+          "links": [
+            40
+          ]
+        },
+        {
+          "localized_name": "latent",
+          "name": "latent",
+          "type": "LATENT",
+          "slot_index": 2,
+          "links": [
+            41
+          ]
+        }
+      ],
+      "title": "Text Encode Qwen Image 2.1 - 第一阶段替换人物身份与服装",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "TextEncodeQwenImage21",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "prompt": true,
+            "negative_prompt": true,
+            "resolution": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "将图1人物把头替换成图3,衣服替换成图2，再把姿势替换成图4的姿势",
+        "",
+        1024
+      ],
+      "widgets_values_named": {
+        "prompt": "将图1人物把头替换成图3,衣服替换成图2，再把姿势替换成图4的姿势",
+        "negative_prompt": "",
+        "resolution": 1024
+      }
+    },
+    {
+      "id": 36,
+      "type": "KSampler",
+      "pos": [
+        1653.66301998856,
+        1874.9410964854044
+      ],
+      "size": [
+        370,
+        474
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 38
+        },
+        {
+          "localized_name": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 39
+        },
+        {
+          "localized_name": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 40
+        },
+        {
+          "localized_name": "Latent图像",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 41
+        },
+        {
+          "localized_name": "种子",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "步数",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "cfg",
+          "name": "cfg",
+          "type": "FLOAT",
+          "widget": {
+            "name": "cfg"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "采样器名称",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "调度器",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "降噪",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "Latent",
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            42
+          ]
+        }
+      ],
+      "title": "KSampler - 第一阶段25步替换人物与服装",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "KSampler",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "seed": true,
+            "steps": true,
+            "cfg": true,
+            "sampler_name": true,
+            "scheduler": true,
+            "denoise": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        2026103002,
+        "fixed",
+        25,
+        1,
+        "euler",
+        "simple",
+        1
+      ],
+      "widgets_values_named": {
+        "seed": 2026103002,
+        "control_after_generate": "fixed",
+        "steps": 25,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1
+      }
+    },
+    {
+      "id": 37,
+      "type": "VAEDecode",
+      "pos": [
+        2223.66301998856,
+        1874.9410964854044
+      ],
+      "size": [
+        350,
+        230
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "Latent",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 42
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 43
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            44,
+            80
+          ]
+        }
+      ],
+      "title": "VAE Decode - 解码第一阶段人物与服装结果",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "VAEDecode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      }
+    },
+    {
+      "id": 38,
+      "type": "SaveImage",
+      "pos": [
+        2188.66301998856,
+        2147.2083520876886
+      ],
+      "size": [
+        420,
+        580
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "图片",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 44
+        },
+        {
+          "localized_name": "文件名前缀",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": []
+        }
+      ],
+      "title": "Save Image - 保存第一阶段人物与服装结果",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "SaveImage",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "filename_prefix": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "images/qwen/gallery/results/face_swap"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "images/qwen/gallery/results/face_swap"
+      }
+    },
+    {
+      "id": 104,
+      "type": "LoadImage",
+      "pos": [
+        -506.33698001144,
+        1716.9410964854037
+      ],
+      "size": [
+        270,
+        338
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "图像",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "选择文件上传",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            57
+          ]
+        },
+        {
+          "localized_name": "遮罩",
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "8.0"
+        }
+      },
+      "widgets_values": [
+        "h3_bfs_original_teal_character_20261014.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "h3_bfs_original_teal_character_20261014.png",
+        "upload": "image"
+      },
+      "title": "Load Image - 第一阶段原始人物图"
+    },
+    {
+      "id": 109,
+      "type": "TextEncodeQwenImage21",
+      "pos": [
+        1060,
+        3310
+      ],
+      "size": [
+        690,
+        570
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 74
+        },
+        {
+          "localized_name": "image_1",
+          "name": "images.image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 79
+        },
+        {
+          "localized_name": "image_2",
+          "name": "images.image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 80
+        },
+        {
+          "localized_name": "image_3",
+          "name": "images.image_3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": 75
+        },
+        {
+          "localized_name": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "negative_prompt",
+          "name": "negative_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "negative_prompt"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "resolution",
+          "name": "resolution",
+          "type": "INT",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            63
+          ]
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "slot_index": 1,
+          "links": [
+            64
+          ]
+        },
+        {
+          "localized_name": "latent",
+          "name": "latent",
+          "type": "LATENT",
+          "slot_index": 2,
+          "links": [
+            65
+          ]
+        }
+      ],
+      "title": "Text Encode Qwen Image 2.1 - 第二阶段图一为姿势且图二为第一阶段成图",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "TextEncodeQwenImage21",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "prompt": true,
+            "negative_prompt": true,
+            "resolution": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "Replace the gray mannequin in image1 with the real woman from image2. Image1 defines the target body pose, limb positions, torso rotation, hip placement, head direction and camera viewpoint. Recreate the exact pose and body orientation of image1, including whether the body faces forward, sideways or backward. Image2 defines only the woman's identity, face, hairstyle, clothing, shoes, accessories, colors, photographic style, studio background and lighting. Preserve those appearance details from image2 while changing her whole-body pose to image1. Output a single full-body photograph of the woman, with both feet visible, anatomically coherent limbs and natural proportions. Do not keep the original upright front-facing stance from image2 when it differs from image1. Do not copy mannequin surfaces, drawn lines, joint circles, anatomy construction marks or a white faceless head from image1.",
+        "",
+        1024
+      ],
+      "widgets_values_named": {
+        "prompt": "Replace the gray mannequin in image1 with the real woman from image2. Image1 defines the target body pose, limb positions, torso rotation, hip placement, head direction and camera viewpoint. Recreate the exact pose and body orientation of image1, including whether the body faces forward, sideways or backward. Image2 defines only the woman's identity, face, hairstyle, clothing, shoes, accessories, colors, photographic style, studio background and lighting. Preserve those appearance details from image2 while changing her whole-body pose to image1. Output a single full-body photograph of the woman, with both feet visible, anatomically coherent limbs and natural proportions. Do not keep the original upright front-facing stance from image2 when it differs from image1. Do not copy mannequin surfaces, drawn lines, joint circles, anatomy construction marks or a white faceless head from image1.",
+        "negative_prompt": "",
+        "resolution": 1024
+      }
+    },
+    {
+      "id": 110,
+      "type": "KSampler",
+      "pos": [
+        1840,
+        3310
+      ],
+      "size": [
+        370,
+        474
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 76
+        },
+        {
+          "localized_name": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 63
+        },
+        {
+          "localized_name": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 64
+        },
+        {
+          "localized_name": "Latent图像",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 65
+        },
+        {
+          "localized_name": "种子",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "步数",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "cfg",
+          "name": "cfg",
+          "type": "FLOAT",
+          "widget": {
+            "name": "cfg"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "采样器名称",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "调度器",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "降噪",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "Latent",
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            66
+          ]
+        }
+      ],
+      "title": "KSampler - 第二阶段25步按目标姿势编辑人物",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "KSampler",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "seed": true,
+            "steps": true,
+            "cfg": true,
+            "sampler_name": true,
+            "scheduler": true,
+            "denoise": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        2026103002,
+        "fixed",
+        25,
+        1,
+        "euler",
+        "simple",
+        1
+      ],
+      "widgets_values_named": {
+        "seed": 2026103002,
+        "control_after_generate": "fixed",
+        "steps": 25,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1
+      }
+    },
+    {
+      "id": 111,
+      "type": "VAEDecode",
+      "pos": [
+        2260,
+        3310
+      ],
+      "size": [
+        350,
+        230
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "Latent",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 66
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 77
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            68
+          ]
+        }
+      ],
+      "title": "VAE Decode - 解码第二阶段姿势编辑结果",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "VAEDecode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      }
+    },
+    {
+      "id": 114,
+      "type": "SaveImage",
+      "pos": [
+        2620,
+        3310
+      ],
+      "size": [
+        420,
+        580
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "图片",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 68
+        },
+        {
+          "localized_name": "文件名前缀",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": []
+        }
+      ],
+      "title": "Save Image - 保存换脸换装后的最终姿势结果",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "SaveImage",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "filename_prefix": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "images/qwen/gallery/results/pose_swap"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "images/qwen/gallery/results/pose_swap"
+      }
+    },
+    {
+      "id": 116,
+      "type": "PoseGallery",
+      "pos": [
+        620,
+        3310
+      ],
+      "size": [
+        360,
+        540
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "姿势编号",
+          "name": "pose_id",
+          "type": "STRING",
+          "widget": {
+            "name": "pose_id"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "界面与输出语言",
+          "name": "language",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "language"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "localized_name": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            79
+          ]
+        },
+        {
+          "label": "宽度",
+          "localized_name": "宽度",
+          "name": "width",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "label": "高度",
+          "localized_name": "高度",
+          "name": "height",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "label": "姿态编号",
+          "localized_name": "姿势编号",
+          "name": "pose_id",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "label": "描述",
+          "localized_name": "描述",
+          "name": "description",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "label": "动作",
+          "localized_name": "动作",
+          "name": "action",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PoseGallery",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "8.0"
+        }
+      },
+      "widgets_values": [
+        "full_sexy_P003_front",
+        "zh",
+        "",
+        ""
+      ],
+      "widgets_values_named": {
+        "pose_id": "full_sexy_P003_front",
+        "language": "zh",
+        "pose_browser": "",
+        "pose_preview": ""
+      },
+      "title": "Pose Gallery 姿势图库 - 第二阶段目标姿势与相机方向"
+    },
+    {
+      "id": 118,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        120,
+        3310
+      ],
+      "size": [
+        420,
+        180
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 81
+        },
+        {
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          },
+          "link": null
+        },
+        {
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            82
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "qwen2.1/动作编辑VNCCS_QI2_PoseStudioV2_3294845.safetensors",
+        1.0
+      ],
+      "widgets_values_named": {
+        "lora_name": "qwen2.1/动作编辑VNCCS_QI2_PoseStudioV2_3294845.safetensors",
+        "strength_model": 1.0
+      },
+      "title": "Load LoRA - 仅为第二阶段加载PoseStudio姿态编辑适配器"
+    },
+    {
+      "id": 119,
+      "type": "QwenImage21Cache",
+      "pos": [
+        120,
+        3560
+      ],
+      "size": [
+        400.5837158203125,
+        130
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 82
+        },
+        {
+          "localized_name": "device",
+          "name": "device",
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "dtype",
+          "name": "dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            76
+          ]
+        }
+      ],
+      "title": "Qwen Image 2.1 Cache - 缓存第二阶段姿势与人物双参考条件",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "QwenImage21Cache",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "device": true,
+            "dtype": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "auto",
+        "default"
+      ],
+      "widgets_values_named": {
+        "device": "auto",
+        "dtype": "default"
+      }
+    },
+    {
+      "id": 120,
+      "type": "MarkdownNote",
+      "pos": [
+        120,
+        3820
+      ],
+      "size": [
+        1510,
+        340
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "MarkdownNote"
+      },
+      "widgets_values": [
+        "# 第二阶段姿势修复\n\n第一阶段人物和服装替换的输入、提示词及采样参数保持原样。\n第二阶段使用独立分支：基础模型 → PoseStudio V2（强度1）→ 第二阶段缓存 → 采样。\n第二阶段图1连接Pose Gallery，图2连接第一阶段VAE Decode；姿势图决定动作与机位，第一阶段成图决定脸、发型和服装。\n采样保持25步、CFG1、Euler/simple、种子2026103002。\n需要本机已有的 qwen2.1/动作编辑VNCCS_QI2_PoseStudioV2_3294845.safetensors。\n\n实测：仅改提示词仍保留正面站姿；加入姿态适配器后能跟随P003背侧转身、回头与扶腰。复杂手指、遮挡和背面服装细节仍需检查。"
+      ],
+      "title": "MarkdownNote - 两阶段输入分工与姿势修复说明"
+    }
+  ],
+  "links": [
+    [
+      33,
+      31,
+      0,
+      32,
+      0,
+      "MODEL"
+    ],
+    [
+      38,
+      32,
+      0,
+      36,
+      0,
+      "MODEL"
+    ],
+    [
+      42,
+      36,
+      0,
+      37,
+      0,
+      "LATENT"
+    ],
+    [
+      43,
+      34,
+      0,
+      37,
+      1,
+      "VAE"
+    ],
+    [
+      44,
+      37,
+      0,
+      38,
+      0,
+      "IMAGE"
+    ],
+    [
+      39,
+      35,
+      0,
+      36,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      40,
+      35,
+      1,
+      36,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      41,
+      35,
+      2,
+      36,
+      3,
+      "LATENT"
+    ],
+    [
+      63,
+      109,
+      0,
+      110,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      64,
+      109,
+      1,
+      110,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      65,
+      109,
+      2,
+      110,
+      3,
+      "LATENT"
+    ],
+    [
+      66,
+      110,
+      0,
+      111,
+      0,
+      "LATENT"
+    ],
+    [
+      68,
+      111,
+      0,
+      114,
+      0,
+      "IMAGE"
+    ],
+    [
+      76,
+      119,
+      0,
+      110,
+      0,
+      "MODEL"
+    ],
+    [
+      77,
+      34,
+      0,
+      111,
+      1,
+      "VAE"
+    ],
+    [
+      34,
+      33,
+      0,
+      35,
+      0,
+      "CLIP"
+    ],
+    [
+      57,
+      104,
+      0,
+      35,
+      1,
+      "IMAGE"
+    ],
+    [
+      51,
+      23,
+      0,
+      35,
+      2,
+      "IMAGE"
+    ],
+    [
+      59,
+      30,
+      0,
+      35,
+      3,
+      "IMAGE"
+    ],
+    [
+      37,
+      34,
+      0,
+      35,
+      6,
+      "VAE"
+    ],
+    [
+      74,
+      33,
+      0,
+      109,
+      0,
+      "CLIP"
+    ],
+    [
+      79,
+      116,
+      0,
+      109,
+      1,
+      "IMAGE"
+    ],
+    [
+      80,
+      37,
+      0,
+      109,
+      2,
+      "IMAGE"
+    ],
+    [
+      75,
+      34,
+      0,
+      109,
+      4,
+      "VAE"
+    ],
+    [
+      81,
+      31,
+      0,
+      118,
+      0,
+      "MODEL"
+    ],
+    [
+      82,
+      118,
+      0,
+      119,
+      0,
+      "MODEL"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 3,
+      "title": "第一阶段：替换人物与服装（保留原参数）",
+      "bounding": [
+        -506.33698001144,
+        1714.9410964854044,
+        3590,
+        1030
+      ],
+      "color": "#856755",
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "第二阶段：PoseStudio姿态编辑（姿势图1／第一阶段人物图2）",
+      "bounding": [
+        70,
+        3190,
+        3270,
+        1010
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "workflowName": "01_QwenImage2.1_换脸换装与姿态编辑_两阶段",
+    "ds": {
+      "scale": 0.7703415106497148,
+      "offset": [
+        153.00645436977766,
+        -2244.1239485796855
+      ]
+    },
+    "ue_links": [],
+    "links_added_by_ue": []
+  },
+  "version": 0.4
+}

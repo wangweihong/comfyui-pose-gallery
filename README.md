@@ -60,7 +60,7 @@ ComfyUI 本地中文姿势图库节点。参考并改编 [ai-pose-gallery-zh](ht
 | --- | --- | --- |
 | [MOSS 深度控制参考版](example_workflows/pose_gallery_moss_sft50_reference.json) | 图库姿势 → Depth Anything 深度图 → 根据文字生成角色 | SFT 50 步，ER-SDE，896×1184，约 46.4 秒 |
 | [Anima 动漫姿态生图](example_workflows/pose_gallery_anima_lllite_v2.json) | 图库线稿 + 文字 → Anima LLLite v2 生成动漫人物 | Miaomiao Harem Anima 1.1、动作关键词联动，30 步、CFG4 |
-| [Qwen Image 2.1 姿态编辑](example_workflows/pose_gallery_qwen21_pose_edit.json) | 图库姿势 + 人物参考 → 保留人物外观并迁移姿态 | 25 步，Euler/simple，896×1184，约 17 秒/张（模型已加载） |
+| [Qwen Image 2.1 两阶段换脸换装与姿态编辑](example_workflows/01_QwenImage2.1_换脸换装与姿态编辑_两阶段.json) | 人物＋服装＋人像先替换，再按图库姿势编辑 | 两阶段各25步，第二阶段PoseStudio V2，896×1184 |
 | [Qwen Image 2.1 双人姿态编辑](example_workflows/02_QwenImage2.1_PoseGallery_双人姿态编辑实测.json) | 双人姿势 + 两张人物参考，收录本机保存配置；[输入顺序和使用说明](example_workflows/qwen21_pair_pose_gallery.md) | 25 步，Euler/simple；本次收录仅做结构与素材校验 |
 | [Krea2 深度控制](example_workflows/pose_gallery_krea2_depth.json) | 图库姿势 → Depth Anything V2 → Krea2 Turbo 深度控制文生图 | 8 步，ER-SDE，896×1184，热加载约 9.4 秒 |
 
@@ -159,33 +159,21 @@ PNG 包含实际 API 参数和可导入工作流。开发工作区的 `images/mo
 
 姿势 ID：`full_sexy_P031_front`。示例人物穿绿色上衣与米色长裤，姿态为跪姿、双手置于脑后。深度约束整体轮廓，人物细节和背景由提示词生成。
 
-## Qwen Image 2.1 · Pose Gallery 姿态编辑
+## Qwen Image 2.1 · 换脸换装与姿态编辑
 
-导入 [`example_workflows/pose_gallery_qwen21_pose_edit.json`](example_workflows/pose_gallery_qwen21_pose_edit.json)，使用图库姿势原图与人物参考双图输入，配合 Qwen2.1 专用 Pose Studio v2 LoRA。通用提示词不含固定动作名称，已本地测试 P002 站姿与 P031 跪姿；25 步、CFG 1、Euler/simple，输出 896×1184。
+旧工作流已直接替换并按实际功能命名，不再沿用错误的 MOSS 名称。
 
-导入前请查看[完整操作、模型依赖及实测结果](example_workflows/qwen21_pose_gallery.md)，复制附带人物参考图到 ComfyUI input，或选择自己的图片，并重选本机模型路径。该工作流使用 Pose Gallery 图库，不需要 VNCCS 3D 编辑节点。其他姿势效果需自行评估。
+| 工作流 | 可视化 JSON | API JSON | 作用 |
+| --- | --- | --- | --- |
+| 01 两阶段换脸换装与姿态编辑 | [导入](example_workflows/01_QwenImage2.1_换脸换装与姿态编辑_两阶段.json) | [API](example_workflows/01_QwenImage2.1_换脸换装与姿态编辑_两阶段.api.json) | 第一阶段换脸换装，第二阶段通过PoseStudio V2迁移姿势 |
 
-### Qwen 使用步骤与示例
+需要同时安装 pose、portrait、costume 三个图库。请先将[附带原人物图](example_workflows/assets/h3_bfs_original_teal_character_20261014.png)复制到 `ComfyUI/input/`，或在 Load Image 中选择自己的参考图。模型路径、参考职责和测试范围见[完整指南](example_workflows/qwen21_gallery_workflows.md)。
 
-1. 将[示例人物参考图](example_workflows/assets/pose_gallery_person_reference.png) 复制到 `ComfyUI/input/`，或直接在 Load Image 中选择自己的成人角色参考图。
-2. 导入[Qwen 姿态编辑工作流](example_workflows/pose_gallery_qwen21_pose_edit.json)，按[模型依赖说明](example_workflows/qwen21_pose_gallery.md)选择 Qwen Image 2.1 BF16、Qwen3-VL 编码器、VAE 和 **QI2.1 专用 Pose Studio v2 LoRA**。
-3. 在 Pose Gallery 选择姿势。图库原图连接编码器 `image_1`，人物参考连接 `image_2`。通用提示词保留人物身份、服装、画风、背景与光照，不含固定动作名称。
-4. 点击运行，成图与姿势原图分别保存在 `output/images/qwen2.1/pose_gallery/results/` 和 `poses/`。
+01 保留已经成功的第一阶段配置。第二阶段使用**图1姿势图库线稿、图2第一阶段解码成图**，仅第二阶段模型分支加载 QI2.1 PoseStudio V2 LoRA（强度1）。25步、CFG1、Euler/simple、固定种子2026103002。完整链路已实测，第一阶段输出与修复前结果的RGB像素完全相同；P003的背侧转身、回头和扶腰已跟随。其他姿势、手指与服装背面细节仍需检查。
 
-LoRA 强度 1，25 步、CFG 1、Euler/simple、种子 20261029，不叠加 Turbo LoRA。此链路直接使用图库线稿作为图像条件。
+![第一阶段人物与服装替换](docs/images/qwen21_gallery/stage1.png)
 
-![Qwen Image 2.1 Pose Gallery工作流实测截图](docs/images/qwen21_pose_gallery_workflow.png)
-
-参考人物（下列两组测试共用）：
-
-<img src="example_workflows/assets/pose_gallery_person_reference.png" alt="Qwen姿态编辑人物参考图" width="240">
-
-| 图库姿势原图 | Qwen Image 2.1 生成结果 |
-| --- | --- |
-| ![P002站姿原图](library/img/full_sexy_P002_front.png) | ![Qwen通用提示词站姿结果](example_workflows/assets/qwen21_generic_result.png) |
-| ![P031跪姿原图](library/img/full_sexy_P031_front.png) | ![Qwen通用提示词跪姿结果](example_workflows/assets/qwen21_generic_kneeling_result.png) |
-
-两组结果分别对应 `full_sexy_P002_front` 和 `full_sexy_P031_front`，使用相同人物参考、同一份通用提示词，仅切换姿势 ID。保留了酒红色上衣、白裤和发型，同时由站姿切换为跪姿。其他复杂姿势及多人姿势尚未覆盖，仍可能需要补充文字、调整参数或重试。详细记录见[实测摘要](example_workflows/pose_gallery_qwen21_validation.json)。
+![第二阶段姿势编辑](docs/images/qwen21_gallery/stage2.png)
 
 ## Krea2 · Pose Gallery 深度控制
 

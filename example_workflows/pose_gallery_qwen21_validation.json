@@ -32,5 +32,6 @@
       "visual_review": "arms behind head and corresponding standing/kneeling pose followed; reference clothing and hairstyle retained"
     }
   ],
-  "limitations": "Only these two single-person frontal poses tested; not a guarantee for all poses. Timings use warm models."
+  "limitations": "Only these two single-person frontal poses tested; not a guarantee for all poses. Timings use warm models.",
+  "scope": "Historical tests for the removed earlier workflow; current examples and their validated input roles are documented in qwen21_gallery_workflows.md."
 }

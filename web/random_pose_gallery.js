@@ -3,6 +3,26 @@ import { api } from "../../scripts/api.js";
 import "./i18n.mjs";
 import "./random_i18n.mjs";
 
+// Preview-name restoration must not depend on the version of the shared UI module.
+// Start inside a promise so failures cannot escape onConfigure and abort graph loading.
+let previewCatalogPromise;
+function loadPreviewCatalog() {
+  if (!previewCatalogPromise) {
+    previewCatalogPromise = Promise.resolve()
+      .then(() => fetch(api.apiURL('/pose_gallery/catalog')))
+      .then(response => {
+        if (!response.ok) throw new Error('Cannot load preview names');
+        return response.json();
+      })
+      .then(rows => {
+        if (!Array.isArray(rows)) throw new Error('Invalid preview catalog');
+        return rows;
+      })
+      .catch(error => { previewCatalogPromise = null; throw error; });
+  }
+  return previewCatalogPromise;
+}
+
 app.registerExtension({
   name:'comfyui-pose-gallery.random-preview',
   async beforeRegisterNodeDef(nodeType,nodeData){
@@ -65,7 +85,7 @@ app.registerExtension({
         // Older saved workflows contain only the Chinese preview name.
         if(!lastNames.en && typeof fetch === 'function') {
           const requestedId = lastId;
-          shared.loadCatalog(api.apiURL('/pose_gallery/catalog')).then(rows => {
+          loadPreviewCatalog().then(rows => {
             if(removed || requestedId !== lastId) return;
             const row = rows.find(item => item.id === requestedId);
             if(row) {

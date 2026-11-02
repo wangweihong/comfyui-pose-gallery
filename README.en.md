@@ -24,6 +24,14 @@ Random Pose also accepts optional `pose_system` and `angle` filters. Random Port
 
 The [saved two-person workflow](example_workflows/02_QwenImage2.1_PoseGallery_双人姿态编辑实测.json) includes two character inputs and a gallery pose. See the [bilingual guide](example_workflows/qwen21_pair_pose_gallery.md) for input order, bundled assets and the original prompt, which currently assigns image 2 to both people. A matching API graph is included. This addition checks structure and assets without a new generation test.
 
+## Qwen Image 2.1 gallery workflows
+
+The obsolete workflow examples have been replaced and renamed to describe their actual behavior.
+
+- [01 · Face/outfit replacement followed by pose editing](example_workflows/01_QwenImage2.1_换脸换装与姿态编辑_两阶段.json) ([API](example_workflows/01_QwenImage2.1_换脸换装与姿态编辑_两阶段.api.json)): requires the pose, portrait and costume galleries. Stage two uses pose image 1 and the decoded stage-one person image 2, with a dedicated PoseStudio QI2.1 v2 model-only LoRA branch at strength 1.
+
+Copy the [bundled person PNG](example_workflows/assets/h3_bfs_original_teal_character_20261014.png) to `ComfyUI/input/`, or select your own image. Re-select model paths locally. Both use 25 steps, CFG 1, Euler/simple and seed 2026103002; 01 runs this twice. The full two-stage workflow was tested successfully, and its stage-one RGB pixels matched the pre-repair output exactly. The current P003 pose follows the rear three-quarter turn, over-shoulder look and hand-on-waist placement. Other poses and fine details remain subject to visual review. See the [dependency and input-order guide](example_workflows/qwen21_gallery_workflows.md).
+
 ## Install and browse
 
 Clone `https://github.com/wangweihong/comfyui-pose-gallery.git` inside `ComfyUI/custom_nodes/`, keep its bundled `library/`, restart ComfyUI and refresh the browser. Dependencies use ComfyUI's Pillow, NumPy, PyTorch and aiohttp; uploads require no generation model. Add **image → Pose Gallery**, open its Browse button, inspect an image and click Use to write it back. Browsing or selecting never queues a workflow.

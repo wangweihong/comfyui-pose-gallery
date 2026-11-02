@@ -1,13 +1,14 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const root=path.join(__dirname,'..'),uid='u-'+'a'.repeat(32);
-async function setup(fetchCatalog){
+async function setup(fetchCatalog,legacyI18n=false,fetchImpl){
   let extension,changes=0;
   class Element{constructor(){this.style={};this.children=[];this.attributes={};}append(...children){this.children.push(...children);}setAttribute(k,v){this.attributes[k]=v;}}
   const origin={name:'origin',value:'all',options:{values:['all','builtin','user']}},language={name:'language',value:'zh'},system={name:'pose_system',value:'全身单人・标准系',options:{values:['all','全身单人・标准系','自定义']}},angle={name:'angle',value:'正面',options:{values:['all','正面','俯视']}};
   class Node{constructor(){this.widgets=[origin,language,system,angle];this.dom={};this.properties={};this.outputs=Array.from({length:6},()=>({}));this.title='RandomPoseGallery';}addDOMWidget(name,type,el){this.dom[name]=el;}setSize(){}setDirtyCanvas(){}addOutput(name,type){this.outputs.push({name,type});}}
-  const context=vm.createContext({...fetchCatalog?{fetch:async()=>({ok:true,json:async()=>fetchCatalog})}:{},window:{},URLSearchParams,localStorage:{getItem:()=>null,setItem(){}},document:{createElement:()=>new Element()},api:{apiURL:p=>'/api'+p},app:{registerExtension:e=>{extension=e;},graph:{change(){changes++;}},queuePrompt(){throw Error('Must never enqueue a task');}}});
+  const context=vm.createContext({...fetchImpl?{fetch:fetchImpl}:fetchCatalog?{fetch:async()=>({ok:true,json:async()=>fetchCatalog})}:{},window:{},URLSearchParams,localStorage:{getItem:()=>null,setItem(){}},document:{createElement:()=>new Element()},api:{apiURL:p=>'/api'+p},app:{registerExtension:e=>{extension=e;},graph:{change(){changes++;}},queuePrompt(){throw Error('Must never enqueue a task');}}});
   vm.runInContext(fs.readFileSync(path.join(root,'web/i18n.mjs'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(root,'web/random_i18n.mjs'),'utf8'),context);
+  if(legacyI18n)delete context.window.PoseGalleryI18n.loadCatalog;
   vm.runInContext(fs.readFileSync(path.join(root,'web/random_pose_gallery.js'),'utf8').replace(/^import .*;\s*$/gm,''),context);
   class Original{}await extension.beforeRegisterNodeDef(Original,{name:'PoseGallery'});assert.equal(Original.prototype.onNodeCreated,undefined);
   await extension.beforeRegisterNodeDef(Node,{name:'RandomPoseGallery'});const node=new Node();node.onNodeCreated();
@@ -54,4 +55,28 @@ test('older random nodes gain the action port without moving existing outputs',a
   s.node.onConfigure({widgets_values:['all','en','all','all']});
   assert.equal(s.node.outputs.length,6);assert.equal(s.node.outputs[5].name,'action');assert.equal(s.node.outputs[5].label,'Action');
   original.forEach((output,index)=>assert.equal(s.node.outputs[index],output));assert.deepEqual(s.node.outputs[4].links,[17]);
+});
+
+test('older cached translations cannot abort restoring a workflow with a saved preview',async()=>{
+ const s=await setup(undefined,true,async()=>({ok:true,json:async()=>[{id:uid,name_zh:'旧名称',name_en:'Restored reference'}]}));
+ s.node.properties={last_pose_id:uid,last_pose_name:'旧名称'};
+ assert.doesNotThrow(()=>s.node.onConfigure({widgets_values:['all','en']}));
+ await new Promise(resolve=>setImmediate(resolve));assert.match(s.status.textContent,/Restored reference/);assert.equal(s.changes,0);
+});
+
+test('preview catalog failures do not throw from workflow loading',async()=>{
+ for(const fetchImpl of [()=>{throw Error('offline');},async()=>({ok:false}),async()=>({ok:true,json:async()=>({invalid:true})})]){
+  const s=await setup(undefined,true,fetchImpl);
+  s.node.properties={last_pose_id:uid,last_pose_name:'Saved reference'};
+  assert.doesNotThrow(()=>s.node.onConfigure({widgets_values:['all','en']}));
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.match(s.status.textContent,/Saved reference/);assert.equal(s.node.properties.last_pose_id,uid);assert.equal(s.changes,0);
+ }
+});
+test('restoring previews shares one catalog request without changing node inputs',async()=>{
+ let calls=0;const s=await setup(undefined,true,async()=>{calls++;return {ok:true,json:async()=>[{id:uid,name_zh:"旧名称",name_en:"Restored reference"}]};});
+ s.node.properties={last_pose_id:uid,last_pose_name:'旧名称'};
+ s.node.onConfigure({widgets_values:['all','en']});s.node.onConfigure({widgets_values:['all','en']});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(calls,1);assert.equal(s.origin.value,'all');assert.equal(s.language.value,'en');assert.equal(s.changes,0);
 });

@@ -1,0 +1,315 @@
+{
+  "23": {
+    "inputs": {
+      "costume_id": "SPR-0085",
+      "language": "zh"
+    },
+    "class_type": "CostumeGallery",
+    "_meta": {
+      "title": "Costume Gallery 服装图库 - 选择第一阶段目标服装"
+    }
+  },
+  "30": {
+    "inputs": {
+      "portrait_id": "ffadc16064c",
+      "language": "en"
+    },
+    "class_type": "PortraitGallery",
+    "_meta": {
+      "title": "Portrait Gallery 人像图库 - 选择第一阶段目标人物身份"
+    }
+  },
+  "31": {
+    "inputs": {
+      "unet_name": "image2image/qwen_image_2.1_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Diffusion Model - 两阶段共用Qwen Image 2.1基础权重",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "32": {
+    "inputs": {
+      "device": "auto",
+      "dtype": "default",
+      "model": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "QwenImage21Cache",
+    "_meta": {
+      "title": "Qwen Image 2.1 Cache - 缓存第一阶段人物与服装参考条件",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "33": {
+    "inputs": {
+      "clip_name": "text_encoders/qwen3vl_8b_bf16.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Load CLIP - 加载换脸阶段视觉文本编码器",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "34": {
+    "inputs": {
+      "vae_name": "vae/qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE - 加载Qwen Image 2.1图像编解码器",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "35": {
+    "inputs": {
+      "prompt": "将图1人物把头替换成图3,衣服替换成图2，再把姿势替换成图4的姿势",
+      "negative_prompt": "",
+      "resolution": 1024,
+      "clip": [
+        "33",
+        0
+      ],
+      "images.image_1": [
+        "104",
+        0
+      ],
+      "images.image_2": [
+        "23",
+        0
+      ],
+      "images.image_3": [
+        "30",
+        0
+      ],
+      "vae": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImage21",
+    "_meta": {
+      "title": "Text Encode Qwen Image 2.1 - 第一阶段替换人物身份与服装",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "36": {
+    "inputs": {
+      "seed": 2026103002,
+      "steps": 25,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "32",
+        0
+      ],
+      "positive": [
+        "35",
+        0
+      ],
+      "negative": [
+        "35",
+        1
+      ],
+      "latent_image": [
+        "35",
+        2
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler - 第一阶段25步替换人物与服装",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "37": {
+    "inputs": {
+      "samples": [
+        "36",
+        0
+      ],
+      "vae": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode - 解码第一阶段人物与服装结果",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "38": {
+    "inputs": {
+      "filename_prefix": "images/qwen/gallery/results/face_swap",
+      "images": [
+        "37",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image - 保存第一阶段人物与服装结果",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "104": {
+    "inputs": {
+      "image": "h3_bfs_original_teal_character_20261014.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image - 第一阶段原始人物图",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "109": {
+    "inputs": {
+      "prompt": "Replace the gray mannequin in image1 with the real woman from image2. Image1 defines the target body pose, limb positions, torso rotation, hip placement, head direction and camera viewpoint. Recreate the exact pose and body orientation of image1, including whether the body faces forward, sideways or backward. Image2 defines only the woman's identity, face, hairstyle, clothing, shoes, accessories, colors, photographic style, studio background and lighting. Preserve those appearance details from image2 while changing her whole-body pose to image1. Output a single full-body photograph of the woman, with both feet visible, anatomically coherent limbs and natural proportions. Do not keep the original upright front-facing stance from image2 when it differs from image1. Do not copy mannequin surfaces, drawn lines, joint circles, anatomy construction marks or a white faceless head from image1.",
+      "negative_prompt": "",
+      "resolution": 1024,
+      "clip": [
+        "33",
+        0
+      ],
+      "images.image_1": [
+        "116",
+        0
+      ],
+      "images.image_2": [
+        "37",
+        0
+      ],
+      "vae": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImage21",
+    "_meta": {
+      "title": "Text Encode Qwen Image 2.1 - 第二阶段图一为姿势且图二为第一阶段成图",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "110": {
+    "inputs": {
+      "seed": 2026103002,
+      "steps": 25,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "119",
+        0
+      ],
+      "positive": [
+        "109",
+        0
+      ],
+      "negative": [
+        "109",
+        1
+      ],
+      "latent_image": [
+        "109",
+        2
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler - 第二阶段25步按目标姿势编辑人物",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "111": {
+    "inputs": {
+      "samples": [
+        "110",
+        0
+      ],
+      "vae": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode - 解码第二阶段姿势编辑结果",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "114": {
+    "inputs": {
+      "filename_prefix": "images/qwen/gallery/results/pose_swap",
+      "images": [
+        "111",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image - 保存换脸换装后的最终姿势结果",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
+    }
+  },
+  "116": {
+    "inputs": {
+      "pose_id": "full_sexy_P003_front",
+      "language": "zh"
+    },
+    "class_type": "PoseGallery",
+    "_meta": {
+      "title": "Pose Gallery 姿势图库 - 第二阶段目标姿势与相机方向"
+    }
+  },
+  "118": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "31",
+        0
+      ],
+      "lora_name": "qwen2.1/动作编辑VNCCS_QI2_PoseStudioV2_3294845.safetensors",
+      "strength_model": 1.0
+    },
+    "_meta": {
+      "title": "Load LoRA - 仅为第二阶段加载PoseStudio姿态编辑适配器"
+    }
+  },
+  "119": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "model": [
+        "118",
+        0
+      ],
+      "device": "auto",
+      "dtype": "default"
+    },
+    "_meta": {
+      "title": "Qwen Image 2.1 Cache - 缓存第二阶段姿势与人物双参考条件"
+    }
+  }
+}
