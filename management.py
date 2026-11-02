@@ -95,15 +95,39 @@ def _library_status():
     return {"records": result, "orphan_ids": sorted(set(rules) - set(rows))}
 
 
-def make_plan(ids=None, mode=None):
+def update_summary():
+    with LOCK:
+        rules, rows = catalog.management_rules(), builtin_rows()
+        deleted = [identity for identity, rule in rules.items() if rule["mode"] in ("removed", "thumb_only")]
+        replaced = [identity for identity, rule in rules.items() if rule["mode"] == "replace"]
+        groups = {(rows[identity].get("体系"), rows[identity].get("姿势编号") or identity)
+                  for identity in deleted if identity in rows}
+        return {"deleted_count": len(deleted), "deleted_groups": len(groups), "replaced_count": len(replaced),
+                "missing_count": len(set(rules) - set(rows))}
+
+
+def make_plan(ids=None, mode=None, choices=None):
     """Plan contains only canonical IDs and a fingerprint; paths never come from clients."""
     with LOCK:
-        return _make_plan(ids, mode)
+        return _make_plan(ids, mode, choices)
 
 
-def _make_plan(ids=None, mode=None):
+def _make_plan(ids=None, mode=None, choices=None):
     rules, rows = catalog.management_rules(), builtin_rows()
-    if ids is None:
+    if choices is not None:
+        if (ids is not None or mode is not None or not isinstance(choices, dict)
+                or set(choices) != {"deleted", "replaced"}
+                or choices["deleted"] not in ("delete", "keep") or choices["replaced"] not in ("replace", "keep")):
+            raise ManagementError("invalid_request")
+        desired = {}
+        for identity, rule in rules.items():
+            if rule["mode"] in ("removed", "thumb_only"):
+                desired[identity] = {"mode": "removed" if choices["deleted"] == "delete" else "default"}
+            else:
+                desired[identity] = rule if choices["replaced"] == "replace" else {"mode": "default"}
+        # A missing ID can be forgotten when keeping built-ins, but never re-created.
+        desired = {identity: rule for identity, rule in desired.items() if identity in rows or rule["mode"] == "default"}
+    elif ids is None:
         if mode is not None:
             raise ManagementError("invalid_request")
         desired = {identity: rule for identity, rule in rules.items() if identity in rows}
@@ -122,6 +146,9 @@ def _make_plan(ids=None, mode=None):
                 desired[identity] = {"mode": mode}
     items, fingerprint = [], []
     for identity, rule in sorted(desired.items()):
+        if identity not in rows:
+            items.append({"id": identity, "mode": "default", "operations": []})
+            continue
         row, operations = rows[identity], []
         for kind in SUFFIXES:
             target = destination(row, kind)
@@ -143,6 +170,8 @@ def _make_plan(ids=None, mode=None):
     released = sum(op["bytes"] if op["action"] == "delete" else op["previous_bytes"] - op["bytes"]
                    for item in items for op in item["operations"])
     request = {"ids": sorted(set(ids)) if ids is not None else None, "mode": mode}
+    if choices is not None:
+        request["choices"] = choices
     token = digest(json.dumps([rules, desired, fingerprint], sort_keys=True).encode())
     return {"request": request, "token": token, "items": items, "release_bytes": released,
             "file_count": sum(len(item["operations"]) for item in items),
@@ -151,22 +180,26 @@ def _make_plan(ids=None, mode=None):
 
 def apply_plan(request, token):
     with LOCK:
-        if not isinstance(request, dict) or set(request) != {"ids", "mode"}:
+        if not isinstance(request, dict) or set(request) not in ({"ids", "mode"}, {"ids", "mode", "choices"}):
             raise ManagementError("invalid_request")
         plan = make_plan(**request)
         if not isinstance(token, str) or token != plan["token"]:
             raise ManagementError("plan_changed", 409)
         rules, rows = catalog.management_rules(), builtin_rows()
         for item in plan["items"]:
-            if item["mode"] == "default":
-                rules.pop(item["id"], None)
-            elif item["mode"] != "replace":
+            if item["mode"] not in ("replace", "default"):
                 rules[item["id"]] = {"mode": item["mode"]}
         # Persist intent before destructive operations, so partial failures are retryable.
         save_rules(rules)
         completed, failures, released = [], [], 0
+        counts = {"deleted": 0, "replaced": 0, "kept": 0}
         for item in plan["items"]:
             try:
+                if item["mode"] == "default":
+                    if request.get("choices") is not None and item["id"] in rows:
+                        if any(not destination(rows[item["id"]], kind).is_file() for kind in ("img", "thumbs")):
+                            raise ManagementError("update_required")
+                    rules.pop(item["id"], None)
                 for op in item["operations"]:
                     target = destination(rows[item["id"]], op["kind"])
                     if op["action"] == "delete":
@@ -180,10 +213,13 @@ def apply_plan(request, token):
                         atomic_write(target, data)
                         released += op["previous_bytes"] - len(data)
                 completed.append(item["id"])
+                counts[{"removed": "deleted", "thumb_only": "deleted", "replace": "replaced", "default": "kept"}[item["mode"]]] += 1
             except (OSError, ManagementError) as exc:
                 failures.append({"id": item["id"], "error": exc.code if isinstance(exc, ManagementError) else "storage_error"})
+        if counts["kept"]:
+            save_rules(rules)
         return {"completed": completed, "failures": failures, "release_bytes": released,
-                "orphan_ids": plan["orphan_ids"]}
+                "orphan_ids": plan["orphan_ids"], "counts": counts}
 
 
 def stage_replacement(identity, data):

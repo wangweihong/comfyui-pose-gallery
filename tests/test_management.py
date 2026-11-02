@@ -89,7 +89,7 @@ class ManagementTests(unittest.TestCase):
         self.assertEqual(result["release_bytes"], expected)
         self.assertEqual([row["id"] for row in c.records()], ["pose_side"])
         self.assertEqual(len(m.library_status()["records"]), 2)
-        with self.assertRaisesRegex(ValueError, "素材已完全清理"):
+        with self.assertRaisesRegex(ValueError, "素材已删除"):
             c.pose("pose_front")
         self.assertEqual((c.LIBRARY / c.INDEX_FILE).read_bytes(), self.index_bytes)
         thumb = m.destination(self.rows[0], "thumbs")
@@ -215,6 +215,54 @@ class ManagementTests(unittest.TestCase):
             self.execute()
         self.assertEqual(path.read_bytes(), before)
         self.assertTrue(m.destination(self.rows[0], "img").exists())
+
+    def test_update_choices_handle_deletion_and_replacement_independently(self):
+        originals = {(row["id"], kind): m.destination(row, kind).read_bytes()
+                     for row in self.rows for kind in m.SUFFIXES}
+        for deleted in ("delete", "keep"):
+            for replaced in ("replace", "keep"):
+                with self.subTest(deleted=deleted, replaced=replaced):
+                    m.save_rules({})
+                    for row in self.rows:
+                        for kind in m.SUFFIXES:
+                            m.destination(row, kind).write_bytes(originals[row["id"], kind])
+                    self.execute(["pose_front"], "removed")
+                    replacement = m.stage_replacement("pose_side", picture("blue"))
+                    m.apply_plan(replacement["request"], replacement["token"])
+                    replacement_hash = c.management_rules()["pose_side"]["hashes"]["img"]
+                    self.assertEqual(m.update_summary()["deleted_count"], 1)
+                    self.assertEqual(m.update_summary()["replaced_count"], 1)
+                    # Simulate the updater restoring the shipped files, without changing records.
+                    for row in self.rows:
+                        for kind in m.SUFFIXES:
+                            m.destination(row, kind).write_bytes(originals[row["id"], kind])
+                    choices = {"deleted": deleted, "replaced": replaced}
+                    plan = m.make_plan(choices=choices)
+                    result = m.apply_plan(plan["request"], plan["token"])
+                    self.assertFalse(result["failures"])
+                    self.assertEqual(m.destination(self.rows[0], "img").exists(), deleted == "keep")
+                    self.assertEqual(m.destination(self.rows[0], "thumbs").exists(), deleted == "keep")
+                    actual = m.digest(m.destination(self.rows[1], "img").read_bytes())
+                    self.assertEqual(actual, replacement_hash if replaced == "replace" else m.digest(originals["pose_side", "img"]))
+                    self.assertEqual("pose_front" in c.management_rules(), deleted == "delete")
+                    self.assertEqual("pose_side" in c.management_rules(), replaced == "replace")
+                    self.assertEqual(result["counts"], {"deleted": int(deleted == "delete"),
+                                                       "replaced": int(replaced == "replace"),
+                                                       "kept": int(deleted == "keep") + int(replaced == "keep")})
+
+    def test_keep_after_update_reports_missing_files_without_losing_the_deletion(self):
+        self.execute(["pose_front"], "removed")
+        plan = m.make_plan(choices={"deleted": "keep", "replaced": "keep"})
+        result = m.apply_plan(plan["request"], plan["token"])
+        self.assertEqual(result["failures"], [{"id": "pose_front", "error": "update_required"}])
+        self.assertEqual(c.management_rules()["pose_front"]["mode"], "removed")
+        self.assertEqual(result["counts"]["kept"], 0)
+
+    def test_invalid_update_choices_are_rejected_before_writing(self):
+        for choices in [{}, {"deleted": "delete"}, {"deleted": "anything", "replaced": "keep"}]:
+            with self.assertRaises(m.ManagementError):
+                m.make_plan(choices=choices)
+        self.assertFalse(c.USER_LIBRARY.exists())
 
 
 if __name__ == "__main__":

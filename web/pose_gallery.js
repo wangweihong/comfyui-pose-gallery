@@ -106,7 +106,7 @@ app.registerExtension({
         if(dialogLabel) dialogLabel.textContent = t('Pose Gallery · 选择姿势和视角后，点击「使用此姿势」');
         if(done) done.textContent = t('关闭');
         if(frame) frame.title = t('人体姿势参考图库');
-        if(imageFailed) previewError.textContent = t('原图加载失败：library/img/{id}.png。请在节点目录执行 git pull 更新完整图库，重启 ComfyUI 后刷新浏览器。若使用自定义图库目录，请确认该目录包含对应原图。', {id:String(value.value)}) + (language === 'en' ? ' If you removed this asset, cancel its rule in the asset manager before manually reinstalling it.' : ' 若曾清理此素材，请先在素材管理中取消规则，再手动补回文件。');
+        if(imageFailed) previewError.textContent = t('原图加载失败：library/img/{id}.png。请在节点目录执行 git pull 更新完整图库，重启 ComfyUI 后刷新浏览器。若使用自定义图库目录，请确认该目录包含对应原图。', {id:String(value.value)}) + (language === 'en' ? ' If you deleted this pose, restore its files, then choose to keep it in Manage built-in assets.' : ' 若曾删除此姿势，请补回素材，再在“管理内置素材”中选择保留。');
         if(['PoseGallery','Pose Gallery','Pose Gallery 姿势图库'].includes(node.title)) node.title = language === 'en' ? 'Pose Gallery' : 'Pose Gallery 姿势图库';
         node.setDirtyCanvas(true, true);
       }

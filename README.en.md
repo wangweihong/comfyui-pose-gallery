@@ -51,22 +51,25 @@ Built-in multi-view groups are preserved. Each upload is an independent single-i
 
 Static PNG, JPEG and WebP are supported, one image at a time, up to **20 MiB and 32 megapixels**. The server validates actual content and rejects animation, damaged images and paths outside the library. Full images are normalized to PNG while preserving dimensions and transparency. WebP previews fit within 800×1000 and thumbnails within 400×500, without stretching. Node IMAGE outputs composite transparency onto white. **Import does not extract a subject, remove backgrounds or edit people.** Custom uploads do not yet support batch import, editing or deletion. Built-in assets can be managed below.
 
-## Built-in asset manager: manual cleanup and replacement
+## Edit, delete and replace built-in poses
 
-Open **Built-in asset manager** in the gallery toolbar, or **Manage this asset** in the image viewer. Filter by system, category, state, name or ID. Select individual images or all filtered results. By default, selecting an image includes every view in its pose group; uncheck that option to manage one view.
+- **Delete groups:** click **Edit** above the gallery, select pose cards, then **Delete selected poses**. All views of each selected group are deleted. Use the existing gallery filters or select all filtered results. Click **Done** to leave editing.
+- **Manage one view:** open a pose and select its view. **Delete** and **Replace** appear directly below **Open in new window**. Deletion affects only this view. Replacement accepts PNG/JPEG/WebP, up to 20 MiB and 32 megapixels, and preserves the ID and other views.
+- Deletion removes all image files for the affected assets, frees space, and excludes them from browsing and random sampling. A confirmation explains the affected scope.
 
-- **Remove originals** deletes full images and previews while retaining thumbnails for browsing. Uninstalled originals cannot be selected for use and are excluded from random sampling.
-- **Remove all files** deletes originals, thumbnails and previews, and excludes these IDs from the normal gallery and random pool. They remain visible in the manager.
-- **Replace** requires one selected ID. Upload a static PNG/JPEG/WebP, up to 20 MiB and 32 megapixels. Saving stages the source and generated derivatives in the user directory. Confirming the preview copies them into the built-in library, preserving the ID, name and group without changing other views.
-- **Cancel rules** stops future application of the rules. It **does not download or restore original files, or delete replacement sources**. Reinstall the desired files manually after canceling their rules.
+The top **Manage built-in assets** button is only for handling earlier changes after a plugin update. It has no image list or repeated selections:
 
-Every cleanup shows affected IDs, file operations and estimated net space released before **Confirm** changes built-in files. Failures are reported per ID and can be retried. If files or rules change after previewing, generate a new preview.
+| Earlier action | Continue it | Keep updated built-ins |
+| --- | --- | --- |
+| Deleted poses | Delete them again | Keep them and stop repeating these deletions |
+| Replaced poses | Reapply my replacement images | Use built-in images and stop repeating these replacements |
 
-Rules live in `ComfyUI/user/pose_gallery/data/builtin_changes.json`; replacement sources live in `ComfyUI/user/pose_gallery/replacements/<id>/<revision>/`. Back up both. Clients of the same ComfyUI service share these rules. Replacement sources and older revisions are retained and excluded from built-in space estimates.
+Choose both independently, then click **Apply**. The report lists deleted, replaced, kept and failed views. No assets are downloaded. If a file has not been restored by the update, keeping it fails with a clear message and its saved operation remains available for retry.
 
-**Startup, browsing and updates never automatically delete or copy files.** An updater may restore removed assets or overwrite replacements. Afterwards, manually click **Apply saved rules…**, review the preview and confirm. Unknown IDs retain their rules and are skipped. The base index stays unchanged; only registered built-in IDs can be managed, with symlinks and escaping paths rejected. Removing working-tree images does not reclaim Git history storage.
+Startup, browsing and updates never automatically delete or replace files. Operations are stored in `ComfyUI/user/pose_gallery/data/builtin_changes.json`; replacement sources are stored in `ComfyUI/user/pose_gallery/replacements/<id>/<revision>/`. Back up both. Clients of the same service share these files. Replacement sources and older revisions are retained. The base index stays unchanged. File operations are restricted to registered built-in IDs and reject symlinks and escaping paths. Removing working-tree files does not remove Git history objects.
 
-API: `GET /pose_gallery/manage` reads all built-in states. `POST /pose_gallery/manage/plan` accepts `{ids, mode}` (`thumb_only`, `removed`, `default`, or an existing `replace` rule); `{}` previews all saved rules. `POST /pose_gallery/manage/apply` accepts the returned `{request, token}`. Multipart `POST /pose_gallery/manage/replacement` accepts `id` and `image`, saves sources/rules only and returns a preview without overwriting built-in images.
+Developer API: `GET /pose_gallery/manage/summary` returns deletion/replacement counts. `POST /pose_gallery/manage/plan` accepts `{choices: {deleted: "delete" / "keep", replaced: "replace" / "keep"}}` or `{ids, mode}`. `POST /pose_gallery/manage/apply` accepts the returned `{request, token}`. Multipart `POST /pose_gallery/manage/replacement` accepts `id` and `image` to validate and prepare replacement sources. The UI combines planning and applying into one user action. Compatibility with already-running services allows the new interface to work without interrupting queued jobs.
+
 
 ## Persistent user library
 

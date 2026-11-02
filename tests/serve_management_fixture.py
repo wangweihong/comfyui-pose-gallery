@@ -46,6 +46,14 @@ async def simulate_update(request):
 
 
 app.router.add_post("/_fixture/update", simulate_update)
+
+
+async def reset_fixture(request):
+    module.management.save_rules({})
+    return await simulate_update(request)
+
+
+app.router.add_post("/_fixture/reset", reset_fixture)
 try:
     web.run_app(app, host="0.0.0.0", port=int(sys.argv[1]) if len(sys.argv) > 1 else 18297, access_log=None)
 finally:

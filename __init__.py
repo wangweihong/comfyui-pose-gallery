@@ -235,13 +235,18 @@ async def management_status_route(request):
     return await management_response(management.library_status)
 
 
+@routes.get("/pose_gallery/manage/summary")
+async def management_summary_route(request):
+    return await management_response(management.update_summary)
+
+
 @routes.post("/pose_gallery/manage/plan")
 async def management_plan_route(request):
     try:
         data = await management_json(request)
     except management.ManagementError as exc:
         return web.json_response({"error": exc.code}, status=exc.status)
-    if set(data) - {"ids", "mode"}:
+    if set(data) - {"ids", "mode", "choices"}:
         return web.json_response({"error": "invalid_request"}, status=400)
     return await management_response(management.make_plan, **data)
 

@@ -227,7 +227,7 @@ main{padding:22px 0 54px}
 .download-btn:hover{background:var(--accent-dark)}
 .open-btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--text-2)}
 .open-btn:hover{border-color:var(--accent);color:var(--accent)}
-#openImage,#manage-current-asset{grid-column:1/-1}
+#openImage,.viewer-asset-actions{grid-column:1/-1}
 .keyboard-help{margin-top:auto;color:var(--text-3);font-size:10px;line-height:2}
 .keyboard-help kbd{display:inline-block;min-width:20px;padding:0 4px;border:1px solid var(--line-strong);border-radius:4px;background:var(--surface-2);color:var(--text-2);font:10px/18px var(--font);text-align:center}
 .info-dialog{width:min(580px,calc(100% - 32px));max-height:min(760px,86dvh);padding:0;border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--text);box-shadow:0 24px 80px rgba(15,20,35,.22);overflow:auto}
@@ -505,6 +505,8 @@ let currentList = [];
 let renderedCount = 0;
 const groupMap = new Map();
 const viewerState = { index: 0, item: null, token: 0, returnFocus: null };
+let editing = false, previousView = 'pose';
+const selectedGroups = new Set();
 
 function groupKey(item) { return `${item.体系}|${item.姿势编号 || item.id}`; }
 
@@ -571,7 +573,9 @@ function computeList() {
 }
 
 function cardImage(item, name, number) {
-  return `<div class="card-image"><img class="main-image" src="${esc(item.缩略图)}" alt="${esc(t(name))} · ${esc(t(item.角度))}" loading="lazy" decoding="async"><div class="image-top"><span class="pose-no">${esc(item.origin==='user'?(uploads.language==='en'?'Custom':'自定义'):number)}</span><span class="angle-tag">${esc(t(item.角度))}</span></div><span class="zoom-hint">${icon('expand')}</span></div>`;
+  const key=groupKey(item);
+  const selection=editing&&item.origin==='builtin'?`<label class="pose-selection"><input type="checkbox" data-select-group="${esc(key)}"${selectedGroups.has(key)?' checked':''}><span>${language==='en'?'Select group':'选择整组'}</span></label>`:'';
+  return `<div class="card-image"><img class="main-image" src="${esc(item.缩略图)}" alt="${esc(t(name))} · ${esc(t(item.角度))}" loading="lazy" decoding="async"><div class="image-top"><span class="pose-no">${esc(item.origin==='user'?(uploads.language==='en'?'Custom':'自定义'):number)}</span><span class="angle-tag">${esc(t(item.角度))}</span></div>${selection}<span class="zoom-hint">${icon('expand')}</span></div>`;
 }
 
 function poseCard(entry, index) {
@@ -580,7 +584,7 @@ function poseCard(entry, index) {
     const angleItem = group.angles[angle];
     return `<button class="angle-thumb${angleItem === item ? ' on' : ''}" type="button" data-angle="${esc(angle)}" title="${esc(t(angle))}" aria-label="${esc(t('查看{angle}视角', {angle:t(angle)}))}"><img src="${esc(angleItem.缩略图)}" alt="" loading="lazy" decoding="async"><span>${esc(t(angle))}</span></button>`;
   }).join('');
-  return `<article class="pose-card" tabindex="0" data-index="${index}" aria-label="${esc(t('{name}，{angle}视角', {name:t(group.name),angle:t(item.角度)}))}">${cardImage(item, group.name, group.number)}<div class="card-body"><h3>${esc(t(group.name))}</h3><div class="card-meta"><span class="system">${esc(t(group.system))}</span><span class="meta-dot">·</span><span class="category">${esc(t(group.category))}</span></div></div><div class="angle-strip">${strip}</div></article>`;
+  return `<article class="pose-card${editing&&item.origin==='builtin'?' editable':''}${editing&&selectedGroups.has(group.key)?' is-selected':''}" tabindex="0" data-index="${index}" aria-label="${esc(t('{name}，{angle}视角', {name:t(group.name),angle:t(item.角度)}))}">${cardImage(item, group.name, group.number)}<div class="card-body"><h3>${esc(t(group.name))}</h3><div class="card-meta"><span class="system">${esc(t(group.system))}</span><span class="meta-dot">·</span><span class="category">${esc(t(group.category))}</span></div></div><div class="angle-strip">${strip}</div></article>`;
 }
 
 function singleCard(entry, index) {
@@ -634,6 +638,7 @@ function render(append = false) {
   more.textContent = t('加载更多（剩余 {count} {unit}）', {count:format(total-renderedCount),unit:t(state.view === 'pose' ? '组' : '张')});
   syncControls();
   renderActiveFilters();
+  updateEditControls();
 }
 
 function resetView() {
@@ -685,6 +690,7 @@ $('#angleFilter').addEventListener('click', event => {
 });
 
 $('#viewFilter').addEventListener('click', event => {
+  if(editing)return;
   const button = event.target.closest('button[data-view]');
   if (!button) return;
   state.view = button.dataset.view;
@@ -732,6 +738,11 @@ grid.addEventListener('click', event => {
   if (!card) return;
   const index = Number(card.dataset.index);
   const entry = currentList[index];
+  if(editing){
+    if(event.target.closest('.pose-selection'))return;
+    toggleGroup(entry.group);
+    return;
+  }
   const angleButton = event.target.closest('.angle-thumb');
   if (angleButton && state.view === 'pose') {
     entry.item = entry.group.angles[angleButton.dataset.angle];
@@ -741,6 +752,7 @@ grid.addEventListener('click', event => {
 });
 
 grid.addEventListener('mouseover', event => {
+  if(editing)return;
   const button = event.target.closest('.angle-thumb');
   if (!button || state.view !== 'pose') return;
   const card = button.closest('.pose-card[data-index]');
@@ -755,9 +767,30 @@ grid.addEventListener('keydown', event => {
   if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.pose-card[data-index]')) {
     event.preventDefault();
     const index = Number(event.target.dataset.index);
-    openViewer(index, currentList[index].item);
+    if(editing)toggleGroup(currentList[index].group);
+    else openViewer(index, currentList[index].item);
   }
 });
+
+grid.addEventListener('change',event=>{
+  const input=event.target.closest('[data-select-group]');
+  if(!input)return;
+  if(input.checked)selectedGroups.add(input.dataset.selectGroup);else selectedGroups.delete(input.dataset.selectGroup);
+  input.closest('.pose-card').classList.toggle('is-selected',input.checked);
+  updateEditControls();
+});
+
+function toggleGroup(group){
+  if(!group.items.some(item=>item.origin==='builtin'))return;
+  if(selectedGroups.has(group.key))selectedGroups.delete(group.key);else selectedGroups.add(group.key);
+  grid.querySelectorAll('.pose-card').forEach(card=>{
+    const entry=currentList[Number(card.dataset.index)];
+    if(entry.group.key!==group.key)return;
+    card.classList.toggle('is-selected',selectedGroups.has(group.key));
+    const input=card.querySelector('[data-select-group]');if(input)input.checked=selectedGroups.has(group.key);
+  });
+  updateEditControls();
+}
 
 $('#loadMore').addEventListener('click', () => {
   state.shown = Math.min(state.shown + PAGE_SIZE[state.view], currentList.length);
@@ -813,7 +846,7 @@ function showViewer() {
   if(item.original_available===false){
     full.onload=null;full.onerror=null;
     image.classList.remove('is-loading');
-    $('#imageStatus').textContent=language==='en'?'Original not installed. Manage this asset to cancel its rule, then reinstall manually.':'原图未安装。可在素材管理中取消规则后手动补回原图。';
+    $('#imageStatus').textContent=language==='en'?'This view is unavailable. Restore the built-in assets, then choose to keep them in Manage built-in assets.':'此视角暂不可用。请补回内置素材，再在“管理内置素材”中选择保留。';
   }else full.src = item.原图;
   $('#usePose').disabled=item.original_available===false;
 
@@ -835,8 +868,9 @@ function showViewer() {
   download.href = item.原图;
   download.setAttribute('download', `${item.id}.png`);
   $('#openImage').href = item.原图;
-  manageCurrent.hidden=item.origin==='user';
-  manageCurrent.textContent=language==='en'?'Manage this asset':'管理此素材';
+  assetActions.hidden=item.origin==='user';
+  deleteCurrent.textContent=language==='en'?'Delete':'删除';
+  replaceCurrent.textContent=language==='en'?'Replace':'替换';
   [download,$('#openImage')].forEach(link=>{if(item.original_available===false){link.removeAttribute('href');link.setAttribute('aria-disabled','true');}else link.removeAttribute('aria-disabled');});
 }
 
@@ -928,6 +962,7 @@ function setLanguage(value) {
   document.documentElement.lang = language === 'en' ? 'en' : 'zh-CN';
   // Capture only the initial static DOM, before any dynamic list is rendered.
   staticRoots.forEach(root => I.translateDOM(root, language));
+  updateEditControls();
   document.title = t('AI 姿势参考库｜288 组人体姿势 · 1439 张多角度参考图');
   const selectedId = !$('#viewer').hidden ? viewerState.item?.id : null;
   if(catalogLoaded) {
@@ -988,13 +1023,40 @@ const uploads = window.GalleryUploads.mount({
 });
 
 let manager;
-const manageCurrent=document.createElement('button');manageCurrent.type='button';manageCurrent.id='manage-current-asset';manageCurrent.className='open-btn';manageCurrent.hidden=true;
-manageCurrent.onclick=()=>manager.show(viewerState.item?.id);$('#openImage').after(manageCurrent);
-manager=window.PoseLibraryManager.mount({toolbar:$('.gallery-custom-toolbar'),language:uploads.language,
-  async onChanged(){
+const editButton=document.createElement('button');editButton.type='button';editButton.id='gallery-edit-toggle';$('.gallery-custom-toolbar').append(editButton);
+const editToolbar=document.createElement('div');editToolbar.className='gallery-edit-toolbar';editToolbar.hidden=true;editToolbar.id='gallery-edit-toolbar';
+const editCount=document.createElement('span'),selectVisible=document.createElement('button'),clearSelection=document.createElement('button'),deleteSelected=document.createElement('button');
+[selectVisible,clearSelection,deleteSelected].forEach(button=>button.type='button');deleteSelected.className='edit-delete';deleteSelected.id='gallery-delete-selected';
+editToolbar.append(editCount,selectVisible,clearSelection,deleteSelected);$('.controls-inner').append(editToolbar);
+function updateEditControls(){
+  editButton.textContent=language==='en'?(editing?'Done':'Edit'):(editing?'完成':'编辑');
+  editButton.setAttribute('aria-pressed',String(editing));editToolbar.hidden=!editing;
+  for(const key of [...selectedGroups])if(!groupMap.has(key))selectedGroups.delete(key);
+  editCount.textContent=language==='en'?`${selectedGroups.size} pose groups selected`:`已选 ${selectedGroups.size} 组姿势`;
+  selectVisible.textContent=language==='en'?'Select filtered poses':'全选当前结果';
+  clearSelection.textContent=language==='en'?'Clear selection':'取消选择';
+  deleteSelected.textContent=language==='en'?'Delete selected poses':'删除选中姿势';deleteSelected.disabled=selectedGroups.size===0;
+  $('#viewFilter').querySelectorAll('button').forEach(button=>button.disabled=editing);
+}
+editButton.onclick=()=>{
+  editing=!editing;selectedGroups.clear();
+  if(editing){previousView=state.view;state.view='pose';}else state.view=previousView;
+  resetView();
+};
+selectVisible.onclick=()=>{currentList.forEach(entry=>{if(entry.group.items.some(item=>item.origin==='builtin'))selectedGroups.add(entry.group.key);});render();};
+clearSelection.onclick=()=>{selectedGroups.clear();render();};
+deleteSelected.onclick=()=>{const groups=GROUPS.filter(group=>selectedGroups.has(group.key));manager.deleteAssets(groups.flatMap(group=>group.items),groups.length);};
+const assetActions=document.createElement('div');assetActions.className='viewer-asset-actions';assetActions.hidden=true;
+const deleteCurrent=document.createElement('button'),replaceCurrent=document.createElement('button');
+deleteCurrent.type=replaceCurrent.type='button';deleteCurrent.id='delete-current-asset';replaceCurrent.id='replace-current-asset';deleteCurrent.className='open-btn asset-delete';replaceCurrent.className='open-btn';
+deleteCurrent.onclick=()=>manager.deleteAssets([viewerState.item]);replaceCurrent.onclick=()=>manager.replaceAsset(viewerState.item);
+assetActions.append(deleteCurrent,replaceCurrent);$('#openImage').after(assetActions);
+manager=window.PoseLibraryManager.mount({toolbar:$('.gallery-custom-toolbar'),feedback:$('.controls-inner'),language:uploads.language,
+  async onChanged({keepId}={}){
     closeViewer();
     const [rows,meta]=await Promise.all([fetch('./catalog',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json();}),fetch('./meta',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json();})]);
     prepareData(rows);uploads.update(meta);
+    if(keepId){const index=currentList.findIndex(entry=>entry.group.items.some(item=>item.id===keepId));const item=DATA.find(row=>row.id===keepId);if(index>=0&&item)openViewer(index,item);}
     window.parent.postMessage({type:'pose-gallery-library-changed'},location.origin);
   }
 });

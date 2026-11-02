@@ -138,7 +138,7 @@ def pose(identity, include_removed=False):
     row = index(include_removed=include_removed).get(identity)
     if row is None:
         if management_rules().get(identity, {}).get("mode") == "removed":
-            raise ValueError("素材已完全清理，请先在素材管理中取消规则并手动补回文件。Asset removed; cancel its rule and reinstall files manually.")
+            raise ValueError("素材已删除。请先补回内置素材，再在“管理内置素材”中选择保留。Asset deleted. Restore built-in files, then choose to keep them in Manage built-in assets.")
         raise ValueError("未知素材 ID：" + identity)
     return row
 
@@ -148,7 +148,7 @@ def asset(kind, filename):
     # The manager may show thumbnails restored by an updater before manual cleanup.
     row = pose(Path(filename).stem, include_removed=kind != "img")
     if kind == "img" and row.get("management_state") == "thumb_only":
-        raise FileNotFoundError("原图已清理，请先取消清理规则并手动补回原图。Original removed; cancel its rule and reinstall manually.")
+        raise FileNotFoundError("原图已清理。请先补回内置素材，再在“管理内置素材”中选择保留。Original removed. Restore built-in files, then choose to keep them in Manage built-in assets.")
     root = USER_LIBRARY if row["origin"] == "user" else LIBRARY
     relative = f"{PREFIXES[kind]}/{filename}"
     target = (root / relative).resolve()

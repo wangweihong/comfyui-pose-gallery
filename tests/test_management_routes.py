@@ -69,7 +69,7 @@ class ManagementRouteTests(unittest.TestCase):
                 response = await client.post("/pose_gallery/manage/plan", json={"ids": [identity], "mode": "removed"})
                 plan = await response.json()
                 await client.post("/pose_gallery/manage/apply", json={"request": plan["request"], "token": plan["token"]})
-                self.assertIn("素材已完全清理", self.old.VALIDATE_INPUTS(identity))
+                self.assertIn("素材已删除", self.old.VALIDATE_INPUTS(identity))
                 response = await client.get("/pose_gallery/catalog")
                 self.assertNotIn(identity, [row["id"] for row in await response.json()])
                 response = await client.get("/pose_gallery/manage")
