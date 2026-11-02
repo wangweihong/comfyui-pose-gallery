@@ -1,0 +1,92 @@
+{
+  "source_issue": "https://github.com/wangweihong/comfyui-pose-gallery/issues/2",
+  "source_comment": "https://github.com/wangweihong/comfyui-pose-gallery/issues/2#issuecomment-6554955537",
+  "strict_same_weight_reproduction": false,
+  "version_note": "The issue uses Union v1, which is absent locally; tests use the installed Union 2.1 2602 8steps. Model paths were remapped; base sampling, original prompt and depth preprocessing were preserved.",
+  "models": {
+    "unet": "text2image/z_image_turbo/z_image_turbo_bf16.safetensors",
+    "clip": "text2image/qwen_3_4b.safetensors",
+    "vae": "zimage-turbo/split_files/vae/ae.safetensors",
+    "controlnet": "Z-Image-Turbo-Fun-Controlnet-Union-2.1-2602-8steps.safetensors"
+  },
+  "settings": {
+    "steps": 8,
+    "cfg": 1,
+    "sampler": "res_multistep",
+    "scheduler": "simple",
+    "seed": 20261102,
+    "shift": 3,
+    "depth_resolution": 512,
+    "megapixels": 1,
+    "control_range": [
+      0,
+      1
+    ],
+    "original_prompt_preserved": true
+  },
+  "cases": [
+    {
+      "case": "standing",
+      "prompt_id": "f0af3f6c-3f2b-4c58-abad-ca6a43a724fd",
+      "status": "success",
+      "elapsed_seconds": 87.948,
+      "cold_load_included": true,
+      "image_size": [
+        896,
+        1184
+      ],
+      "label": "issue站姿，强度0.8",
+      "pose": "full_single_P024_front",
+      "strength": 0.8,
+      "review": "举手与单腿后抬轮廓有跟随，但脸部空白、画面呈扁平人偶感，不能作为合格人物成图。"
+    },
+    {
+      "case": "kneeling",
+      "prompt_id": "e1637a1a-94a7-40f6-a652-7c044da6f5bb",
+      "status": "success",
+      "elapsed_seconds": 8.18,
+      "cold_load_included": false,
+      "image_size": [
+        896,
+        1184
+      ],
+      "label": "单膝跪姿，强度0.8",
+      "pose": "full_single_P033_front",
+      "strength": 0.8,
+      "review": "单膝跪与前侧抬膝总体跟随，人物与服装可成图；双手却被放到身后，没有按参考放在膝盖上。"
+    },
+    {
+      "case": "no_control",
+      "prompt_id": "b98a360e-a640-4ece-9415-b4d76598b138",
+      "status": "success",
+      "elapsed_seconds": 5.816,
+      "cold_load_included": false,
+      "image_size": [
+        896,
+        1184
+      ],
+      "label": "关闭控制对照",
+      "pose": "full_single_P024_front",
+      "strength": 0,
+      "review": "同提示词和种子不再跟随举手、单腿后抬；生成普通站姿，且头部上方被截。"
+    },
+    {
+      "case": "standing_strength065",
+      "prompt_id": "6c8c90a0-7f0a-48bc-8f02-119ec6d2826a",
+      "status": "success",
+      "elapsed_seconds": 4.718,
+      "cold_load_included": false,
+      "image_size": [
+        896,
+        1184
+      ],
+      "label": "站姿降强度0.65",
+      "pose": "full_single_P024_front",
+      "strength": 0.65,
+      "review": "脸部与摄影质感恢复，单手触头跟随；后抬腿退化为双腿交叠，控制准确度下降。"
+    }
+  ],
+  "conclusion": "The adapted pipeline executes and provides useful coarse pose control, but the original parameter setting can produce faceless/mannequin artifacts. Lower strength improves realism while weakening limb control. No matched MOSS comparison was run.",
+  "test_date": "2026-11-02",
+  "review_method": "Manual visual review; status records backend execution success, not pose or image quality acceptance."
+}

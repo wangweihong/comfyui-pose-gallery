@@ -62,6 +62,7 @@ ComfyUI 本地中文姿势图库节点。参考并改编 [ai-pose-gallery-zh](ht
 | [Anima 动漫姿态生图](example_workflows/pose_gallery_anima_lllite_v2.json) | 图库线稿 + 文字 → Anima LLLite v2 生成动漫人物 | Miaomiao Harem Anima 1.1、动作关键词联动，30 步、CFG4 |
 | [Qwen Image 2.1 两阶段换脸换装与姿态编辑](example_workflows/01_QwenImage2.1_换脸换装与姿态编辑_两阶段.json) | 人物＋服装＋人像先替换，再按图库姿势编辑 | 两阶段各25步，第二阶段PoseStudio V2，896×1184 |
 | [Qwen Image 2.1 双人姿态编辑](example_workflows/02_QwenImage2.1_PoseGallery_双人姿态编辑实测.json) | 双人姿势 + 两张人物参考，收录本机保存配置；[输入顺序和使用说明](example_workflows/qwen21_pair_pose_gallery.md) | 25 步，Euler/simple；本次收录仅做结构与素材校验 |
+| [Z-Image-Turbo 深度控制实测](example_workflows/z_image_turbo_pose_gallery.md) | 图库姿势 → Depth Anything V2 → Union 2.1 2602 八步控制 | 8 步、CFG1；四组结果含空白脸及动作偏差，附 0.65 强度对照；与 issue 原 Union v1 有版本差异 |
 | [Krea2 深度控制](example_workflows/pose_gallery_krea2_depth.json) | 图库姿势 → Depth Anything V2 → Krea2 Turbo 深度控制文生图 | 8 步，ER-SDE，896×1184，热加载约 9.4 秒 |
 
 下方提供实际 ComfyUI 截图及姿势与成图对照。运行时间受硬件、模型加载与缓存影响。

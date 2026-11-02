@@ -1,0 +1,1093 @@
+{
+  "id": "75796bcc-54df-5fb3-932c-81528270a281",
+  "revision": 0,
+  "last_node_id": 21,
+  "last_link_id": 23,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "PoseGallery",
+      "pos": [
+        30,
+        60
+      ],
+      "size": [
+        360,
+        510
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            1,
+            22
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "pose_id",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "description",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "action",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "title": "Pose Gallery 姿势图库 - 选择ZIT测试的姿势原图",
+      "properties": {
+        "Node name for S&R": "PoseGallery",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "full_single_P024_front",
+        "zh",
+        "",
+        ""
+      ],
+      "widgets_values_named": {
+        "pose_id": "full_single_P024_front",
+        "language": "zh",
+        "pose_browser": "",
+        "pose_preview": ""
+      }
+    },
+    {
+      "id": 2,
+      "type": "DepthAnythingV2Preprocessor",
+      "pos": [
+        410,
+        20
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DepthAnythingV2Preprocessor"
+      },
+      "widgets_values": [
+        "depth_anything_v2_vitl.pth",
+        512
+      ],
+      "widgets_values_named": {
+        "ckpt_name": "depth_anything_v2_vitl.pth",
+        "resolution": 512
+      },
+      "title": "Depth Anything V2 - 从姿势线稿估计相对深度"
+    },
+    {
+      "id": 3,
+      "type": "ImageScaleToTotalPixels",
+      "pos": [
+        410,
+        260
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            3,
+            8,
+            21,
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageScaleToTotalPixels"
+      },
+      "widgets_values": [
+        "bilinear",
+        1,
+        32
+      ],
+      "widgets_values_named": {
+        "upscale_method": "bilinear",
+        "megapixels": 1,
+        "resolution_steps": 32
+      },
+      "title": "Scale Image to Total Pixels - 等比缩放深度图到一百万像素"
+    },
+    {
+      "id": 4,
+      "type": "GetImageSize",
+      "pos": [
+        410,
+        510
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            11
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            12
+          ]
+        },
+        {
+          "name": "batch_size",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetImageSize"
+      },
+      "title": "Get Image Size - 将深度图尺寸传给潜空间"
+    },
+    {
+      "id": 5,
+      "type": "UNETLoader",
+      "pos": [
+        800,
+        20
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "text2image/z_image_turbo/z_image_turbo_bf16.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "text2image/z_image_turbo/z_image_turbo_bf16.safetensors",
+        "weight_dtype": "default"
+      },
+      "title": "Load Diffusion Model - 加载本地Z Image Turbo BF16"
+    },
+    {
+      "id": 6,
+      "type": "CLIPLoader",
+      "pos": [
+        800,
+        260
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "text2image/qwen_3_4b.safetensors",
+        "lumina2",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "text2image/qwen_3_4b.safetensors",
+        "type": "lumina2",
+        "device": "default"
+      },
+      "title": "Load CLIP - 加载本地Qwen3 4B文本编码器"
+    },
+    {
+      "id": 7,
+      "type": "VAELoader",
+      "pos": [
+        800,
+        510
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            7,
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "zimage-turbo/split_files/vae/ae.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "zimage-turbo/split_files/vae/ae.safetensors"
+      },
+      "title": "Load VAE - 加载Z Image Turbo配套AE"
+    },
+    {
+      "id": 8,
+      "type": "ModelPatchLoader",
+      "pos": [
+        800,
+        750
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL_PATCH",
+          "type": "MODEL_PATCH",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelPatchLoader"
+      },
+      "widgets_values": [
+        "Z-Image-Turbo-Fun-Controlnet-Union-2.1-2602-8steps.safetensors"
+      ],
+      "widgets_values_named": {
+        "name": "Z-Image-Turbo-Fun-Controlnet-Union-2.1-2602-8steps.safetensors"
+      },
+      "title": "Load Model Patch - 加载本地Union 2.1 2602八步控制权重"
+    },
+    {
+      "id": 9,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [
+        1190,
+        20
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelSamplingAuraFlow"
+      },
+      "widgets_values": [
+        3,
+        "flow"
+      ],
+      "widgets_values_named": {
+        "shift": 3,
+        "sampling": "flow"
+      },
+      "title": "ModelSamplingAuraFlow - 按issue设置shift3与flow采样"
+    },
+    {
+      "id": 10,
+      "type": "ZImageFunControlnet",
+      "pos": [
+        1580,
+        20
+      ],
+      "size": [
+        330,
+        206
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 5
+        },
+        {
+          "name": "model_patch",
+          "type": "MODEL_PATCH",
+          "link": 6
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 7
+        },
+        {
+          "name": "image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 8
+        },
+        {
+          "name": "inpaint_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "title": "Apply Fun ControlNet - 按深度参考控制人物姿态",
+      "properties": {
+        "Node name for S&R": "ZImageFunControlnet"
+      },
+      "widgets_values": [
+        0.65,
+        0,
+        1
+      ],
+      "widgets_values_named": {
+        "strength": 0.65,
+        "start_percent": 0,
+        "end_percent": 1
+      }
+    },
+    {
+      "id": 11,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1190,
+        310
+      ],
+      "size": [
+        340,
+        260
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            10,
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "best quality,masterpiece,realistic,absurdres,realistic,Highly detailed,simple background,(Denim_jacket:1.4),(High-waisted_shorts:1.3),(Sneakers:1.2),"
+      ],
+      "widgets_values_named": {
+        "text": "best quality,masterpiece,realistic,absurdres,realistic,Highly detailed,simple background,(Denim_jacket:1.4),(High-waisted_shorts:1.3),(Sneakers:1.2),"
+      },
+      "title": "CLIP Text Encode (Prompt) - 沿用issue原人物服装提示词"
+    },
+    {
+      "id": 12,
+      "type": "ConditioningZeroOut",
+      "pos": [
+        1190,
+        650
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ConditioningZeroOut"
+      },
+      "title": "ConditioningZeroOut - 清空Turbo负面条件"
+    },
+    {
+      "id": 13,
+      "type": "EmptySD3LatentImage",
+      "pos": [
+        1580,
+        510
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 11
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptySD3LatentImage",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "width": true,
+            "height": true
+          },
+          "version": "8.0",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ],
+      "widgets_values_named": {
+        "width": 1024,
+        "height": 1024,
+        "batch_size": 1
+      },
+      "title": "EmptySD3LatentImage - 按深度尺寸创建潜空间"
+    },
+    {
+      "id": 14,
+      "type": "KSampler",
+      "pos": [
+        1970,
+        20
+      ],
+      "size": [
+        330,
+        470
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 13
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 14
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 15
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        20261102,
+        "fixed",
+        8,
+        1,
+        "res_multistep",
+        "simple",
+        1
+      ],
+      "widgets_values_named": {
+        "seed": 20261102,
+        "control_after_generate": "fixed",
+        "steps": 8,
+        "cfg": 1,
+        "sampler_name": "res_multistep",
+        "scheduler": "simple",
+        "denoise": 1
+      },
+      "title": "KSampler - 沿用issue八步CFG1与固定种子"
+    },
+    {
+      "id": 15,
+      "type": "VAEDecode",
+      "pos": [
+        2360,
+        20
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 17
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "title": "VAE Decode - 解码ZIT姿势生成结果"
+    },
+    {
+      "id": 16,
+      "type": "SaveImage",
+      "pos": [
+        2750,
+        20
+      ],
+      "size": [
+        480,
+        620
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 19
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "images/z-image-turbo/pose-gallery-issue2/standing_strength065/result"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "images/z-image-turbo/pose-gallery-issue2/standing_strength065/result"
+      },
+      "title": "Save Image - 保存ZIT姿势测试结果"
+    },
+    {
+      "id": 18,
+      "type": "MarkdownNote",
+      "pos": [
+        1190,
+        900
+      ],
+      "size": [
+        700,
+        330
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "# Issue 2 · Z Image Turbo姿态测试\n\n原链路：Pose Gallery → Depth Anything V2 Large（512）→ 1MP等比深度 → ZImageFunControlnet → ZIT八步生图。\n采样保持issue原参数：res_multistep/simple，8步，CFG1，seed20261102，shift3。本对照文件控制强度0.65（issue原参数为0.8），范围0至1；提示词保持原文。\n\n本机未安装issue中的Union v1，替换为已存在的Union 2.1 2602 8steps；主模型、Qwen3 4B及AE仅映射到本机注册路径。这不是同权重版本的严格复现。\n测试输出另存到images/z-image-turbo/pose-gallery-issue2/，不修改既有工作流。\n\n实测结果：脸部与摄影质感恢复，单手触头跟随；后抬腿退化为双腿交叠，控制准确度下降。\n本文件是测试工作流，执行成功不代表完全匹配姿势。"
+      ],
+      "widgets_values_named": {
+        "text": "# Issue 2 · Z Image Turbo姿态测试\n\n原链路：Pose Gallery → Depth Anything V2 Large（512）→ 1MP等比深度 → ZImageFunControlnet → ZIT八步生图。\n采样保持issue原参数：res_multistep/simple，8步，CFG1，seed20261102，shift3。本对照文件控制强度0.65（issue原参数为0.8），范围0至1；提示词保持原文。\n\n本机未安装issue中的Union v1，替换为已存在的Union 2.1 2602 8steps；主模型、Qwen3 4B及AE仅映射到本机注册路径。这不是同权重版本的严格复现。\n测试输出另存到images/z-image-turbo/pose-gallery-issue2/，不修改既有工作流。\n\n实测结果：脸部与摄影质感恢复，单手触头跟随；后抬腿退化为双腿交叠，控制准确度下降。\n本文件是测试工作流，执行成功不代表完全匹配姿势。"
+      },
+      "color": "#432",
+      "bgcolor": "#653",
+      "title": "MarkdownNote - issue2原参数与本机权重版本说明"
+    },
+    {
+      "id": 19,
+      "type": "PreviewImage",
+      "pos": [
+        30.310133714371275,
+        795.3884641744933
+      ],
+      "size": [
+        140,
+        26
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "title": "Preview Image - 预览实际输入的深度条件"
+    },
+    {
+      "id": 20,
+      "type": "SaveImage",
+      "pos": [
+        30,
+        1450
+      ],
+      "size": [
+        460,
+        600
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 22
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "title": "Save Image - 保存测试对应的图库姿势原图",
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "images/z-image-turbo/pose-gallery-issue2/standing_strength065/pose"
+      ]
+    },
+    {
+      "id": 21,
+      "type": "SaveImage",
+      "pos": [
+        550,
+        1450
+      ],
+      "size": [
+        460,
+        600
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "title": "Save Image - 保存测试实际输入的深度图",
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "images/z-image-turbo/pose-gallery-issue2/standing_strength065/depth"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      5,
+      0,
+      9,
+      0,
+      "MODEL"
+    ],
+    [
+      5,
+      9,
+      0,
+      10,
+      0,
+      "MODEL"
+    ],
+    [
+      6,
+      8,
+      0,
+      10,
+      1,
+      "MODEL_PATCH"
+    ],
+    [
+      7,
+      7,
+      0,
+      10,
+      2,
+      "VAE"
+    ],
+    [
+      8,
+      3,
+      0,
+      10,
+      3,
+      "IMAGE"
+    ],
+    [
+      9,
+      6,
+      0,
+      11,
+      0,
+      "CLIP"
+    ],
+    [
+      10,
+      11,
+      0,
+      12,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      11,
+      4,
+      0,
+      13,
+      0,
+      "INT"
+    ],
+    [
+      12,
+      4,
+      1,
+      13,
+      1,
+      "INT"
+    ],
+    [
+      13,
+      10,
+      0,
+      14,
+      0,
+      "MODEL"
+    ],
+    [
+      14,
+      11,
+      0,
+      14,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      15,
+      12,
+      0,
+      14,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      16,
+      13,
+      0,
+      14,
+      3,
+      "LATENT"
+    ],
+    [
+      17,
+      14,
+      0,
+      15,
+      0,
+      "LATENT"
+    ],
+    [
+      18,
+      7,
+      0,
+      15,
+      1,
+      "VAE"
+    ],
+    [
+      19,
+      15,
+      0,
+      16,
+      0,
+      "IMAGE"
+    ],
+    [
+      21,
+      3,
+      0,
+      19,
+      0,
+      "IMAGE"
+    ],
+    [
+      22,
+      1,
+      0,
+      20,
+      0,
+      "IMAGE"
+    ],
+    [
+      23,
+      3,
+      0,
+      21,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8857805000000011,
+      "offset": [
+        929.3924704710803,
+        33.700766702988986
+      ]
+    },
+    "frontendVersion": "1.57.4",
+    "workflowName": "02_ZImageTurbo_PoseGallery_Union21_强度065对照8步"
+  },
+  "version": 0.4
+}

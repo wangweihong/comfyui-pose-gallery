@@ -20,6 +20,10 @@ Random Pose also accepts optional `pose_system` and `angle` filters. Random Port
 ![Separate random node in ComfyUI](docs/random-node.png)
 
 
+## Z-Image-Turbo depth-control tests
+
+The [workflows and illustrated report](example_workflows/z_image_turbo_pose_gallery.md) adapt issue #2 using locally available **Union 2.1 2602 8steps**, rather than the original Union v1. Two UI/API pairs cover strengths 0.8 and 0.65, with 8 steps and CFG 1. Four actual runs include standing, kneeling, disabled control and lower strength. Control affects the pose, but results show blank-face artifacts or limb/hand mismatches; lowering strength improves realism while weakening pose accuracy. No matched MOSS comparison was run.
+
 ## Qwen Image 2.1 two-person pose editing
 
 The [saved two-person workflow](example_workflows/02_QwenImage2.1_PoseGallery_双人姿态编辑实测.json) includes two character inputs and a gallery pose. See the [bilingual guide](example_workflows/qwen21_pair_pose_gallery.md) for input order, bundled assets and the original prompt, which currently assigns image 2 to both people. A matching API graph is included. This addition checks structure and assets without a new generation test.
