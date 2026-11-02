@@ -350,6 +350,7 @@ main{padding:22px 0 54px}
 }
 </style>
 <link rel="stylesheet" href="ui/custom_upload.css">
+<link rel="stylesheet" href="ui/library_manager.css">
 </head>
 <body>
 <header class="site-header">
@@ -475,6 +476,7 @@ main{padding:22px 0 54px}
 
 <script src="ui/i18n.mjs"></script>
 <script src="ui/custom_upload.mjs"></script>
+<script src="ui/library_manager.mjs"></script>
 <script>
 (() => {
 'use strict';
@@ -807,14 +809,19 @@ function showViewer() {
     $('#imageStatus').textContent = t('原图加载失败，可点击新窗口重试');
     $('#imageStatus').hidden = false;
   };
-  full.src = item.原图;
+  if(item.original_available===false){
+    full.onload=null;full.onerror=null;
+    image.classList.remove('is-loading');
+    $('#imageStatus').textContent=language==='en'?'Original not installed. Manage this asset to cancel its rule, then reinstall manually.':'原图未安装。可在素材管理中取消规则后手动补回原图。';
+  }else full.src = item.原图;
+  $('#usePose').disabled=item.original_available===false;
 
   $('#viewerNumber').textContent = item.姿势编号 || 'POSE';
   $('#viewerPosition').textContent = `${viewerState.index + 1} / ${currentList.length}`;
   $('#viewerTitle').textContent = t(item.姿势名称);
   $('#viewerId').textContent = item.id;
   $('#copyId').textContent = t('复制 ID');
-  $('#viewerMeta').innerHTML = [['体系', item.体系], ['姿势编号', item.姿势编号 || '—'], ['动作分类', item.分类 || '—'], ['当前视角', item.角度 || '—'], ['图片规格', item.origin==='user'?`${item.w} × ${item.h} PNG`:'900 × 1200 PNG']].map(([key, value]) => `<dt>${esc(t(key))}</dt><dd>${esc(t(value))}</dd>`).join('');
+  $('#viewerMeta').innerHTML = [['体系', item.体系], ['姿势编号', item.姿势编号 || '—'], ['动作分类', item.分类 || '—'], ['当前视角', item.角度 || '—'], ['图片规格', item.w&&item.h?`${item.w} × ${item.h} PNG`:'900 × 1200 PNG']].map(([key, value]) => `<dt>${esc(t(key))}</dt><dd>${esc(t(value))}</dd>`).join('');
   $('#viewerAngles').previousElementSibling.hidden=group.order.length<2;
   $('#viewerAngles').innerHTML = ANGLES.filter(angle => group.angles[angle]).map(angle => {
     const angleItem = group.angles[angle];
@@ -827,6 +834,9 @@ function showViewer() {
   download.href = item.原图;
   download.setAttribute('download', `${item.id}.png`);
   $('#openImage').href = item.原图;
+  manageCurrent.hidden=item.origin==='user';
+  manageCurrent.textContent=language==='en'?'Manage this asset':'管理此素材';
+  [download,$('#openImage')].forEach(link=>{if(item.original_available===false){link.removeAttribute('href');link.setAttribute('aria-disabled','true');}else link.removeAttribute('aria-disabled');});
 }
 
 function stepAngle(direction) {
@@ -913,6 +923,7 @@ const INFO_EN = {
 
 function setLanguage(value) {
   language = I.normalize(value);
+  manager?.setLanguage(language);
   document.documentElement.lang = language === 'en' ? 'en' : 'zh-CN';
   // Capture only the initial static DOM, before any dynamic list is rendered.
   staticRoots.forEach(root => I.translateDOM(root, language));
@@ -973,6 +984,18 @@ const uploads = window.GalleryUploads.mount({
   onSource(){resetView();},
   onLanguage(value){setLanguage(value);},
   onUploaded(payload,id){clearTimeout(searchTimer);state.line='';state.category='';state.angle='';state.query='';state.view='pose';state.shown=PAGE_SIZE.pose;$('#searchInput').value='';prepareData(payload.records);uploads.update(payload.meta);const i=currentList.findIndex(entry=>entry.item.id===id);if(i>=0)openViewer(i,currentList[i].item);}
+});
+
+let manager;
+const manageCurrent=document.createElement('button');manageCurrent.type='button';manageCurrent.hidden=true;
+manageCurrent.onclick=()=>manager.show(viewerState.item?.id);$('#custom-source').after(manageCurrent);
+manager=window.PoseLibraryManager.mount({toolbar:$('.gallery-custom-toolbar'),language:uploads.language,
+  async onChanged(){
+    closeViewer();
+    const [rows,meta]=await Promise.all([fetch('./catalog',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json();}),fetch('./meta',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json();})]);
+    prepareData(rows);uploads.update(meta);
+    window.parent.postMessage({type:'pose-gallery-library-changed'},location.origin);
+  }
 });
 
 setLanguage(uploads.language);

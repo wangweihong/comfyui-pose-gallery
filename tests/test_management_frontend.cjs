@@ -1,0 +1,90 @@
+// Uses tests/serve_management_fixture.py, which creates only temporary synthetic assets.
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+let chromium;
+try { ({chromium} = require('playwright')); } catch {}
+const base = process.env.POSE_MANAGEMENT_TEST_URL;
+test('manual bulk cleanup, full removal, replacement and reapply in the actual gallery', {skip:!chromium||!base}, async () => {
+  const browser = await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,args:['--no-proxy-server']});
+  try {
+    const page = await browser.newPage({viewport:{width:1440,height:1000}});
+    page.setDefaultTimeout(8000);
+    const errors=[], mutations=[];
+    page.on('pageerror',error=>errors.push(error.message));
+    page.on('request',request=>{if(request.method()==='POST')mutations.push(request.url());});
+    await page.goto(base+'/pose_gallery/gallery?lang=zh',{waitUntil:'domcontentloaded'});
+    await page.locator('.pose-card').first().waitFor();
+    await page.locator('#library-manager-open').click();
+    const manager=page.locator('#library-manager');
+    await manager.locator('.library-manager-row').first().waitFor();
+    assert.equal(mutations.length,0,'opening manager must never mutate files');
+    const first=manager.locator('.library-manager-row input').first();
+    const identity=await first.getAttribute('data-id');
+    await first.check();
+    assert.equal(await manager.locator('.library-manager-row input:checked').count(),5,'default selection includes the whole pose group');
+    await manager.getByRole('button',{name:'预览：清理原图',exact:true}).click();
+    await page.locator('#library-manager-plan').waitFor({state:'visible'});
+    let status=await (await page.request.get(base+'/pose_gallery/manage')).json();
+    assert.ok(status.records.every(row=>row.installed_original),'preview must not delete files');
+    await page.locator('#library-manager-confirm').click();
+    await page.locator('#library-manager-status').getByText(/完成 5 个 ID/).waitFor();
+    status=await (await page.request.get(base+'/pose_gallery/manage')).json();
+    assert.equal(status.records.filter(row=>!row.installed_original&&row.installed_thumb).length,5);
+    await page.request.post(base+'/_fixture/update');
+    await page.reload();
+    await page.locator('#library-manager-open').click();
+    await manager.locator('.library-manager-row').first().waitFor();
+    status=await (await page.request.get(base+'/pose_gallery/manage')).json();
+    assert.ok(status.records.every(row=>row.installed_original),'update followed by page load must not auto-clean');
+    await manager.getByRole('button',{name:'应用已保存规则…',exact:true}).click();
+    await page.locator('#library-manager-plan').waitFor({state:'visible'});
+    await page.locator('#library-manager-confirm').click();
+    await page.locator('#library-manager-status').getByText(/完成 5 个 ID/).waitFor();
+    status=await (await page.request.get(base+'/pose_gallery/manage')).json();
+    assert.equal(status.records.filter(row=>!row.installed_original).length,5);
+    await manager.locator('.library-manager-group input').uncheck();
+    await manager.locator(`input[data-id="${identity}"]`).check();
+    await manager.getByRole('button',{name:'预览：完全清理',exact:true}).click();
+    await page.locator('#library-manager-confirm').click();
+    await page.locator('#library-manager-status').getByText(/完成 1 个 ID/).waitFor();
+    let catalog=await (await page.request.get(base+'/pose_gallery/catalog')).json();
+    assert.equal(catalog.some(row=>row.id===identity),false);
+    // Replacement is deliberately saved first and explicitly applied second.
+    const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64');
+    await page.locator('#library-manager-file').setInputFiles({name:'replacement.png',mimeType:'image/png',buffer:png});
+    await manager.getByRole('button',{name:'保存替换规则并预览',exact:true}).click();
+    await page.locator('#library-manager-status').getByText(/尚未覆盖内置图片/).waitFor();
+    status=await (await page.request.get(base+'/pose_gallery/manage')).json();
+    assert.equal(status.records.find(row=>row.id===identity).installed_original,false);
+    await page.locator('#library-manager-confirm').click();
+    await page.locator('#library-manager-status').getByText(/完成 1 个 ID/).waitFor();
+    catalog=await (await page.request.get(base+'/pose_gallery/catalog')).json();
+    assert.equal(catalog.find(row=>row.id===identity).management_state,'replace');
+    assert.equal(catalog.find(row=>row.id===identity).w,1);
+    await page.request.post(base+'/_fixture/update');
+    await manager.getByRole('button',{name:'应用已保存规则…',exact:true}).click();
+    await page.locator('#library-manager-confirm').click();
+    await page.locator('#library-manager-status').getByText(/完成 5 个 ID/).waitFor();
+    status=await (await page.request.get(base+'/pose_gallery/manage')).json();
+    assert.equal(status.records.find(row=>row.id===identity).installed_original,true);
+    assert.equal(status.records.filter(row=>!row.installed_original).length,4);
+    await manager.locator('#library-manager-close').click();
+    await page.locator('#gallery-language').selectOption('en');
+    await page.locator('#library-manager-open').click();
+    await manager.locator('.library-manager-row').first().waitFor();
+    assert.doesNotMatch(await manager.innerText(),/[\u3400-\u9fff]/);
+    await page.setViewportSize({width:390,height:844});
+    assert.equal(await manager.evaluate(node=>node.scrollWidth<=node.clientWidth+1),true,'manager must fit a mobile viewport');
+    if(process.env.POSE_MANAGEMENT_SCREENSHOT_DIR){
+      fs.mkdirSync(process.env.POSE_MANAGEMENT_SCREENSHOT_DIR,{recursive:true});
+      await manager.evaluate(node=>{node.scrollTop=0;});
+      await page.screenshot({path:path.join(process.env.POSE_MANAGEMENT_SCREENSHOT_DIR,'manager-mobile.png')});
+      await page.setViewportSize({width:1440,height:1000});
+      await manager.evaluate(node=>{node.scrollTop=0;});
+      await page.screenshot({path:path.join(process.env.POSE_MANAGEMENT_SCREENSHOT_DIR,'manager-desktop.png')});
+    }
+    assert.deepEqual(errors,[]);
+  } finally {await browser.close();}
+});
