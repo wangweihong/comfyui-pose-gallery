@@ -9,7 +9,8 @@
       0,
       0.85
     ],
-    "prompt": "unchanged from balanced workflow"
+    "prompt": "unchanged from balanced workflow",
+    "model": "anima/anima-base-v1.0.safetensors"
   },
   "cases": [
     {
@@ -149,5 +150,6 @@
     "coverage": "8 additional single-person poses, front/side/diagonal views",
     "conclusion": "Major pose outlines followed in these samples; visible garment/accessory leakage from mannequin joints in cases05/06 and head-angle drift in case07.",
     "limitations": "One fixed seed and one prompt per pose; no quantitative pose scoring, multi-seed stability or identity consistency evaluation."
-  }
+  },
+  "scope": "Historical validation of the previous Anima Base v1 balanced workflow; not the replacement workflow 7e7b00cd-133b-4b2f-8212-1ee3d87338ea."
 }

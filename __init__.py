@@ -17,16 +17,18 @@ from .catalog import USER_LIBRARY, metadata, browser_payload, records, pose, ass
 class PoseGallery:
     @classmethod
     def INPUT_TYPES(cls):
-        return {'required': {'pose_id': ('STRING', {'default': 'full_sexy_P031_front', 'multiline': False, 'tooltip': '点击浏览姿势图库，选择视角后使用；也可以直接输入图库 ID。'})}}
+        return {'required': {'pose_id': ('STRING', {'default': 'full_sexy_P031_front', 'multiline': False, 'tooltip': '点击浏览姿势图库，选择视角后使用；也可以直接输入图库 ID。'})},
+                'optional': {'language': (["zh", "en"], {'default': 'zh',
+                    'tooltip': '界面、description 和 action 输出语言。Language for the UI, description, and action outputs.'})}}
 
-    RETURN_TYPES = ('IMAGE', 'INT', 'INT', 'STRING', 'STRING')
-    RETURN_NAMES = ('image', 'width', 'height', 'pose_id', 'description')
+    RETURN_TYPES = ('IMAGE', 'INT', 'INT', 'STRING', 'STRING', 'STRING')
+    RETURN_NAMES = ('image', 'width', 'height', 'pose_id', 'description', 'action')
     FUNCTION = 'load_pose'
     CATEGORY = 'image/Pose Gallery'
     DESCRIPTION = '本地姿态图库：内置多视角分组、筛选和单张自定义上传，输出完整参考图。'
 
     @classmethod
-    def VALIDATE_INPUTS(cls, pose_id):
+    def VALIDATE_INPUTS(cls, pose_id, language="zh"):
         try:
             row = pose(pose_id)
             asset('img', row['原图'].split('/')[-1])
@@ -35,11 +37,13 @@ class PoseGallery:
         return True
 
     @classmethod
-    def IS_CHANGED(cls, pose_id):
+    def IS_CHANGED(cls, pose_id, language="zh"):
         row = pose(pose_id)
-        return hashlib.sha256(asset('img', row['原图'].split('/')[-1]).read_bytes()).hexdigest()
+        fingerprint = hashlib.sha256(asset('img', row['原图'].split('/')[-1]).read_bytes())
+        fingerprint.update(language.encode('utf-8'))
+        return fingerprint.hexdigest()
 
-    def load_pose(self, pose_id):
+    def load_pose(self, pose_id, language="zh"):
         row = pose(pose_id)
         with Image.open(asset('img', row['原图'].split('/')[-1])) as source:
             img = ImageOps.exif_transpose(source).convert('RGBA')
@@ -47,8 +51,9 @@ class PoseGallery:
             img = Image.alpha_composite(background, img).convert('RGB')
             width, height = img.size
             tensor = torch.from_numpy(np.asarray(img).astype(np.float32) / 255.0).unsqueeze(0)
-        description = ' / '.join(row.get(k, '') for k in ('体系', '分类', '姿势名称', '角度') if row.get(k))
-        return (tensor, width, height, pose_id, description)
+        description = _random_catalog.pose_description(row, language)
+        action = _random_catalog.pose_action(row, language)
+        return (tensor, width, height, pose_id, description, action)
 
 class RandomPoseGallery(PoseGallery):
     @classmethod
@@ -56,13 +61,17 @@ class RandomPoseGallery(PoseGallery):
         return {"required": {"origin": (["all", "builtin", "user"], {"default": "all",
                     "tooltip": "随机来源：全部 / 内置 / 自定义。Random source: all / built-in / custom."})},
                 "optional": {"language": (["zh", "en"], {"default": "zh",
-                    "tooltip": "新节点界面与提示语言；数据输出沿用原节点。UI/error language; data outputs retain the original node's semantics."})}}
+                    "tooltip": "界面、提示、description 和 action 输出语言。Language for the UI, errors, description, and action outputs."}),
+                    "pose_system": (["all", "全身单人・标准系", "全身单人・性感系", "上半身单人", "双人缠绵", "自定义"], {"default": "all"}),
+                    "angle": (["all", "正面", "俯视", "仰视", "侧面", "斜侧", "未分类"], {"default": "all"})}}
 
     FUNCTION = "load_random"
-    DESCRIPTION = "每次运行工作流时，从可用姿态原图中自动随机抽取一张；保留原节点的5个输出。"
+    DESCRIPTION = "每次运行工作流时，从可用姿态原图中自动随机抽取一张，输出参考图、描述和动作关键词。"
 
     @classmethod
-    def _candidates(cls, origin="all", language="zh"):
+    def _candidates(cls, origin="all", language="zh", pose_system="all", angle="all"):
+        pose_system = _random_catalog.canonical_label(pose_system)
+        angle = _random_catalog.canonical_label(angle)
         if origin not in ("all", "builtin", "user"):
             raise ValueError("Invalid random source" if language == "en" else "无效的随机来源")
         available = []
@@ -71,6 +80,10 @@ class RandomPoseGallery(PoseGallery):
         for row in records():
             if origin != "all" and row["origin"] != origin:
                 continue
+            if pose_system != "all" and row.get("体系") != pose_system:
+                continue
+            if angle != "all" and row.get("角度") != angle:
+                continue
             root = _random_catalog.USER_LIBRARY if row["origin"] == "user" else _random_catalog.LIBRARY
             target = (root / row['原图']).resolve()
             if not target.is_relative_to(root):
@@ -78,31 +91,33 @@ class RandomPoseGallery(PoseGallery):
             if target.is_file():
                 available.append(row)
         if not available:
-            raise ValueError("No available originals in this source. Install the library, upload a reference, or change the source."
-                             if language == "en" else "当前来源没有可用姿态原图，请安装素材库、上传参考图或切换来源。")
+            raise ValueError("No available originals in this source/filter. Install the library, upload a reference, or change the source."
+                             if language == "en" else "当前筛选没有可用姿态原图，请安装素材库、上传参考图或切换来源。")
         return available
 
     @classmethod
-    def VALIDATE_INPUTS(cls, origin="all", language="zh"):
+    def VALIDATE_INPUTS(cls, origin="all", language="zh", pose_system="all", angle="all"):
         try:
-            cls._candidates(origin, language)
+            cls._candidates(origin, language, pose_system, angle)
         except (ValueError, OSError) as exc:
             return str(exc)
         return True
 
     @classmethod
-    def IS_CHANGED(cls, origin="all", language="zh"):
+    def IS_CHANGED(cls, origin="all", language="zh", pose_system="all", angle="all"):
         # Re-execute for every queued prompt; the fingerprint is JSON-safe.
         return uuid.uuid4().hex
 
-    def load_random(self, origin="all", language="zh"):
-        selected = random.choice(self._candidates(origin, language))
-        result = super().load_pose(selected["id"])
+    def load_random(self, origin="all", language="zh", pose_system="all", angle="all"):
+        selected = random.choice(self._candidates(origin, language, pose_system, angle))
+        result = super().load_pose(selected["id"], language)
         if selected["origin"] == "user":
             name = selected["name_en"] if language == "en" else selected["name_zh"]
         else:
-            name = selected.get("姿势名称") or selected.get("title") or selected.get("分类") or selected["id"]
-        return {"ui": {"pose_id": [result[3]], "name": [name]}, "result": result}
+            name = (selected.get("name_en") if language == "en" else selected.get("姿势名称")) or selected.get("姿势名称") or selected["id"]
+        name_zh = selected.get("name_zh") or selected.get("姿势名称") or selected["id"]
+        name_en = selected.get("name_en") or _random_catalog.english_labels().get(name_zh, name_zh)
+        return {"ui": {"pose_id": [result[3]], "name": [name], "name_zh": [name_zh], "name_en": [name_en]}, "result": result}
 
 
 routes = PromptServer.instance.routes
@@ -192,6 +207,6 @@ __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']
 @routes.get('/pose_gallery/ui/{filename}')
 async def ui_route(request):
     name=request.match_info['filename']
-    if name not in ('custom_upload.mjs', 'custom_upload.css'):
+    if name not in ('custom_upload.mjs', 'custom_upload.css', 'i18n.mjs'):
         raise web.HTTPNotFound()
     return web.FileResponse(ROOT / 'web' / name, headers={'Cache-Control':'no-cache'})

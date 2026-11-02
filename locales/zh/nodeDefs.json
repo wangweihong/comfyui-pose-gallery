@@ -8,7 +8,14 @@
         "tooltip": "all：全部；builtin：内置；user：自定义。"
       },
       "language": {
-        "name": "界面与提示语言"
+        "name": "界面与输出语言",
+        "tooltip": "控制界面、description 和 action 输出语言，随工作流保存。"
+      },
+      "pose_system": {
+        "name": "姿态体系"
+      },
+      "angle": {
+        "name": "姿态视角"
       }
     },
     "outputs": {
@@ -26,6 +33,43 @@
       },
       "4": {
         "name": "描述"
+      },
+      "5": {
+        "name": "动作"
+      }
+    }
+  },
+  "PoseGallery": {
+    "display_name": "Pose Gallery 姿势图库",
+    "description": "浏览本地多视角姿势参考，按分类筛选或上传自定义图片。",
+    "inputs": {
+      "pose_id": {
+        "name": "姿势编号",
+        "tooltip": "浏览姿势图库，选择视角后点击使用，也可直接输入图库 ID。"
+      },
+      "language": {
+        "name": "界面与输出语言",
+        "tooltip": "控制界面、description 和 action 输出语言，随工作流保存。"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "图像"
+      },
+      "1": {
+        "name": "宽度"
+      },
+      "2": {
+        "name": "高度"
+      },
+      "3": {
+        "name": "姿势编号"
+      },
+      "4": {
+        "name": "描述"
+      },
+      "5": {
+        "name": "动作"
       }
     }
   }

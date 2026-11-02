@@ -26,6 +26,32 @@ class CatalogTests(unittest.TestCase):
         catalog.records.cache_clear(); catalog.index.cache_clear()
         self.temp.cleanup()
 
+    def test_builtins_get_english_names_without_changing_canonical_fields(self):
+        path = catalog.LIBRARY / 'data/pose-zh.json'
+        row = json.loads(path.read_text())[0]
+        row.update({'姿势名称':'S形站姿・胯部侧顶','体系':'全身单人・性感系','角度':'正面'})
+        path.write_text(json.dumps([row]))
+        result = catalog.records()[0]
+        self.assertEqual(result['name_en'], 'S-curve stance · Hip pushed to one side')
+        self.assertEqual(result['姿势名称'], row['姿势名称'])
+        self.assertEqual(catalog.canonical_label('Full body · Sensual'), row['体系'])
+        self.assertEqual(catalog.canonical_label('Front'), row['角度'])
+
+    def test_every_builtin_description_is_available_in_english(self):
+        rows = json.loads((catalog.ROOT / 'library/data/pose-zh.json').read_text())
+        for row in rows:
+            with self.subTest(pose=row['id']):
+                self.assertNotRegex(catalog.pose_description(row, 'en'), r'[\u3400-\u9fff]')
+                expected_zh = ' / '.join(row[key] for key in ('体系','分类','姿势名称','角度'))
+                self.assertEqual(catalog.pose_description(row), expected_zh)
+
+    def test_action_separators_are_normalized_without_extra_metadata(self):
+        row = {'姿势名称':'跪立大幅后仰・双手握脚跟','体系':'全身单人・性感系','分类':'跪立','角度':'侧面'}
+        self.assertEqual(catalog.pose_action(row, 'en'), 'Deep kneeling backbend,Holding both heels')
+        self.assertEqual(catalog.pose_action(row, 'zh'), '跪立大幅后仰,双手握脚跟')
+        self.assertEqual(catalog.pose_action({'姿势名称':'自定义','name_en':'  Reach up  ·  Bend knee ・ Turn head  '}, 'en'), 'Reach up,Bend knee,Turn head')
+        self.assertEqual(catalog.pose_action({'姿势名称':'飞吻'}, 'en'), 'Blowing a kiss')
+
     def test_selected_id_maps_to_allowlisted_file(self):
         self.assertEqual(catalog.asset('img', 'test_front.png').read_bytes(), b'fixture')
 

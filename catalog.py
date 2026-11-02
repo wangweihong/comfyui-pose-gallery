@@ -15,6 +15,31 @@ USER_LIBRARY = Path(os.environ.get("COMFYUI_POSE_GALLERY_USER_LIBRARY", _USER_DI
 INDEX_FILE = "data/pose-zh.json"
 ASSET_FIELDS = {'img': '原图', 'preview': '预览图', 'thumbs': '缩略图'}
 
+@lru_cache(maxsize=1)
+def english_labels():
+    # Translations ship with the node, including when a custom library is used.
+    return json.loads((ROOT / 'web/labels-en.json').read_text(encoding='utf-8'))
+
+def canonical_label(value):
+    return next((zh for zh, en in english_labels().items() if en == value), value)
+
+def pose_description(row, language="zh"):
+    labels = english_labels() if language == "en" else {}
+    values = []
+    for field in ("体系", "分类", "姿势名称", "角度"):
+        value = row.get(field, "")
+        if language == "en":
+            value = (row.get("name_en") or labels.get(value, value)) if field == "姿势名称" else labels.get(value, value)
+        if value:
+            values.append(value)
+    return " / ".join(values)
+
+def pose_action(row, language="zh"):
+    name = row.get("姿势名称", "")
+    if language == "en":
+        name = row.get("name_en") or english_labels().get(name, name)
+    return ",".join(part.strip() for part in re.split(r"[·・]", name) if part.strip())
+
 @lru_cache(maxsize=8)
 def _read_index(path, modified, size):
     rows = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -54,6 +79,8 @@ def records():
                 if row[field] != expected:
                     raise ValueError("图库索引含无效图片路径")
             row["origin"] = origin
+            if origin == "builtin":
+                row["name_en"] = english_labels().get(row.get("姿势名称"), row.get("姿势名称", identity))
             if origin == "user":
                 if not isinstance(row.get("name_zh"), str) or not row["name_zh"] or not isinstance(row.get("name_en"), str):
                     raise ValueError("自定义素材名称无效")

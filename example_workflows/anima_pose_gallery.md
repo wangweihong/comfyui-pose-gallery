@@ -1,28 +1,35 @@
-# Anima Base v1 + Pose Gallery
+# Anima + Pose Gallery · 动作关键词联动
 
-导入 [`pose_gallery_anima_lllite_v2.json`](pose_gallery_anima_lllite_v2.json)，服务端使用对应 `.api.json`。
+导入 [`pose_gallery_anima_lllite_v2.json`](pose_gallery_anima_lllite_v2.json)，服务端使用对应 [`.api.json`](pose_gallery_anima_lllite_v2.api.json)。
+
+2026-11-02 已替换为本地工作流 `7e7b00cd-133b-4b2f-8212-1ee3d87338ea` 的已保存版本，保留原模型、提示词、连线、布局、采样参数和旁路状态。工作流包含 19 个可视化节点，API 版本包含 16 个参与执行的节点。
 
 ## 操作与模型
 
 1. 准备下表权重，更新到包含原生 `ModelPatchLoader` 与 `AnimaLLLiteApply` 的 ComfyUI。
 2. 在 Pose Gallery 浏览、筛选姿势，选择视角后点击「使用此姿势 → ComfyUI」。确认节点显示原图。
-3. 在正向提示词描述人物、服装、场景和画风；示例提示词不指定固定动作。
-4. 点击运行。图库线稿直接作为 LLLite 条件，缩放后尺寸自动传给16通道潜空间。本次为896×1184，无需 Depth Anything。
+3. 保持 Pose Gallery 的 `language=en`。第 6 个 `action` 输出经过 `Show Text` 预览，再由 `Concatenate Text` 追加到正向提示词。
+4. 在 `Concatenate Text` 的 `string_a` 中编辑人物、服装、场景和画风。保存版本保留了用户原提示词中的固定动作片段 `Deep kneeling backbend,Holding both heels`；切换姿势时可删除这个片段，避免与自动追加的动作冲突。
+5. 点击运行。图库线稿直接作为 LLLite 条件，缩放后尺寸自动传给16通道潜空间。本次为896×1184，无需 Depth Anything。
 
 | 权重 | 相对于 ComfyUI/models 的示例路径 |
 | --- | --- |
-| Anima Base v1.0 | `diffusion_models/anima/anima-base-v1.0.safetensors` |
+| Miaomiao Harem Anima 1.1 | `diffusion_models/anima/miaomiaoHarem_anima11.safetensors` |
 | Qwen3 0.6B base | `text_encoders/qwen_3_06b_base.safetensors` |
 | Qwen Image VAE | `vae/qwen_image_vae.safetensors` |
 | Anima LLLite any-test-like v2 | `model_patches/anima-lllite-any-test-like-v2.safetensors` |
 
-[Anima 模型](https://huggingface.co/circlestone-labs/Anima) · [LLLite 作者与许可](https://huggingface.co/kohya-ss/Anima-LLLite) · [Comfy-Org 权重](https://huggingface.co/Comfy-Org/Anima-LLLite/blob/main/model_patches/anima-lllite-any-test-like-v2.safetensors)。权重不随本仓库分发；请按本机目录重选模型。
+需要安装 `comfyui_LLM_party` 提供的 `show_text_party`（Show Text）节点；`StringConcatenate`（Concatenate Text）为 ComfyUI 原生节点。请使用包含 `action` 输出的本插件版本。
 
-30步、CFG4、ER-SDE/simple、种子20261030；控制强度0.75，范围0–0.85，约1MP等比缩放。这是文字加线稿生图，未加入保持同一角色身份的参考图链路。
+[Anima 基础模型资料](https://huggingface.co/circlestone-labs/Anima) · [LLLite 作者与许可](https://huggingface.co/kohya-ss/Anima-LLLite) · [Comfy-Org 权重](https://huggingface.co/Comfy-Org/Anima-LLLite/blob/main/model_patches/anima-lllite-any-test-like-v2.safetensors)。权重不随本仓库分发；请按本机目录重选模型。
 
-输出：`output/images/anima/pose_gallery/results/`（人物）和 `poses/`（实际控制图）。
+30步、CFG4、ER-SDE/simple、种子20261030；控制强度1，范围0–0.9，约1MP等比缩放。这是文字加线稿生图，未加入保持同一角色身份的参考图链路。
 
-## 实测与边界
+默认输出：`output/images/anima/pose_gallery/results/`（人物）。`Random Pose Gallery` 和控制图 `Save Image` 节点保持来源工作流的旁路状态；随机节点仅作备选，未接入当前生成链路。如需保存实际控制图，请启用对应 `Save Image`，保存目录为 `output/images/anima/pose_gallery/poses/`。
+
+## 历史实测与边界（旧 Anima Base v1 均衡工作流）
+
+以下截图、8 组结果和验证 JSON 来自替换前的 Anima Base v1 工作流（控制强度 0.75、范围 0–0.85），不代表新版 Miaomiao Harem 参数的批量测试结果。新版 API 的有效输入及连线已与来源工作流最近一次成功执行记录逐项核对一致。
 
 2026-10-30，在此前站姿与跪姿测试基础上新增8组。相同提示词、种子、采样参数及控制强度，仅切换姿势ID；8个任务均完成，模型已加载时平均9.4秒/张。主要身体轮廓有跟随，但执行成功不代表成图无瑕疵：
 

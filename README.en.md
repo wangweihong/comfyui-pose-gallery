@@ -9,11 +9,13 @@ A local pose reference gallery for ComfyUI. Built-in assets, existing IDs and th
 
 Add **image → Pose Gallery → Random Pose Gallery**, connect `image` to your workflow or Preview Image, and run. Each execution draws a new reference automatically. Set `origin` to `all`, `builtin` or `user`. Pose sampling uses individual view records and never fabricates additional angles.
 
-The original **PoseGallery** keeps its inputs, fixed-selection behavior, cache and 5 output sockets. The new node uses those same outputs for one actual selected image and displays its executed ID and preview. Its `language` controls the new UI, errors and user-entered preview names; port values retain the original node's semantics without invented translations.
+The original **PoseGallery** keeps its required input, fixed-selection behavior and 5 output sockets, and adds an optional `language` input (older workflows default to `zh`). The new node uses those same outputs for one actual selected image and displays its executed ID and preview. Both nodes append a sixth `action` STRING output, containing only the pose name with `·` / `・` separators replaced by commas (no added spaces). For example: `Deep kneeling backbend,Holding both heels`. System, category and view metadata are excluded. Existing output indices 0–4 are unchanged. Both nodes use `language` for UI labels, `action`, and the `description` output: `en` returns the English system, category, pose name and view; `zh` returns the Chinese description. Other outputs are unchanged. The fixed node synchronizes its language input with the gallery selector and saves it in the workflow. Run again after switching languages to refresh the output. Custom references use the supplied name for that language; untranslated custom text retains its original value.
 
 Draws may repeat by chance and are independent of gallery filters. Missing originals are skipped; an empty usable source raises a clear error. Saved preview IDs never freeze future draws. To keep a result, copy `pose_id` into the original selector. The random node does not enqueue or start tasks itself.
 
 Import [the random pose preview example](example_workflows/random_pose_preview.json); a matching API graph is included.
+
+Random Pose also accepts optional `pose_system` and `angle` filters. Random Portrait accepts `section` (`face` / `styling` / `custom`). Filters default to `all`, preserving existing random workflows.
 
 ![Separate random node in ComfyUI](docs/random-node.png)
 
@@ -28,7 +30,7 @@ Clone `https://github.com/wangweihong/comfyui-pose-gallery.git` inside `ComfyUI/
 
 ## Upload one custom pose
 
-1. Click **Upload pose** in the standalone gallery or the gallery opened from a node. The new upload controls provide a Chinese / English selector; legacy built-in browsing labels remain Chinese.
+1. Click **Upload pose** in the standalone gallery or the gallery opened from a node. The Chinese / English selector controls the whole gallery, including systems, categories, views, all 288 pose groups, details, help, and uploads. Switching preserves filters and the selected pose/view, and the language is remembered for the next visit.
 2. Choose one finished reference image, inspect the preview and enter a name. The other-language name is optional; if omitted, the supplied name is reused without inventing a translation.
 3. Click **Save to gallery**. Success selects the Custom source, clears existing filters and opens the new image viewer.
 4. Click Use in the image viewer to update the current node. Uploading and selecting do not run the workflow.
@@ -63,3 +65,9 @@ node --test tests/test_random_frontend.cjs
 ![Custom reference viewer](docs/custom-upload-selected.png)
 
 Independent program code retains its existing license. Built-in images and source data retain their original terms; consult the source and license notices linked from the [Chinese README](README.md). Custom uploads are not attributed to the built-in dataset.
+
+## Anima example workflow
+
+The [UI workflow](example_workflows/pose_gallery_anima_lllite_v2.json) and [API workflow](example_workflows/pose_gallery_anima_lllite_v2.api.json) now use the saved workflow `7e7b00cd-133b-4b2f-8212-1ee3d87338ea`: Miaomiao Harem Anima 1.1, 30 steps, CFG 4, ER-SDE/simple, LLLite strength 1 over 0–0.9. The gallery’s English `action` output feeds Show Text and Concatenate Text before positive text encoding. Install `comfyui_LLM_party` for Show Text. The random gallery and control-image saver remain bypassed as in the source. Model choices, prompts, links, layout and sampling settings are preserved. The original base prompt still contains a fixed action phrase; edit it in Concatenate Text when changing poses.
+
+The eight older result comparisons document the previous Anima Base v1 workflow (strength 0.75); they are historical evidence for that version. See the [usage and dependency notes](example_workflows/anima_pose_gallery.md).

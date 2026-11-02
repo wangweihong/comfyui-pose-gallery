@@ -28,15 +28,16 @@
   function element(tag, text, className) {const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;}
   function mount(config) {
     const remembered=(()=>{try{return localStorage.getItem('gallery-upload-language');}catch{return null;}})();
-    let language=new URL(location.href).searchParams.get('lang')==='en'?'en':remembered==='en'?'en':'zh';
+    const requested=new URL(location.href).searchParams.get('lang');
+    let language=['zh','en'].includes(requested)?requested:remembered==='en'?'en':'zh';
     let origin=new URL(location.href).searchParams.get('origin')||'all';if(!['all','builtin','user'].includes(origin))origin='all';
     let meta=config.meta||{}, file=null, ready=false, busy=false, objectURL=null, version=0, errorCode='';
     const t=key=>(words[key]||words.failed)[language==='en'?1:0];
     const toolbar=element('div',undefined,'gallery-custom-toolbar');
     const open=element('button');open.type='button';open.id='custom-upload-open';
-    const lang=element('select');lang.setAttribute('aria-label','上传界面语言 / Upload language');lang.append(new Option('中文','zh'),new Option('English','en'));lang.value=language;
+    const lang=element('select');lang.id='gallery-language';lang.append(new Option('中文','zh'),new Option('English','en'));lang.value=language;
     toolbar.append(open,lang);config.toolbar.append(toolbar);
-    const sources=element('div',undefined,'gallery-origin-filters');sources.setAttribute('role','group');sources.setAttribute('aria-label','素材来源 / Asset source');
+    const sources=element('div',undefined,'gallery-origin-filters');sources.setAttribute('role','group');
     const counts=element('p',undefined,'gallery-origin-counts');counts.setAttribute('role','status');
     const warning=element('p',undefined,'gallery-library-warning');warning.hidden=true;
     config.filters.prepend(warning,counts,sources);
@@ -60,6 +61,9 @@
     form.append(heading,explanation,limits,fileRow,preview,name.label,other.label,...fields.map(f=>f.label),error,actions);dialog.append(form);document.body.append(dialog);
     function setOrigin(value,notify=true){origin=value;const url=new URL(location.href);if(value==='all')url.searchParams.delete('origin');else url.searchParams.set('origin',value);history.replaceState(null,'',url.pathname+url.search+url.hash);draw();if(notify)config.onSource(value);}
     function draw(){
+      lang.setAttribute('aria-label',language==='en'?'Interface language':'界面语言');
+      sources.setAttribute('aria-label',language==='en'?'Asset source':'素材来源');
+      if(!notice.hidden)notice.textContent=t('saved');
       open.textContent=t(config.kind);heading.textContent=t(config.kind);explanation.textContent=t('notice');limits.textContent=t('limits');choose.textContent=t('choose');filename.textContent=file?.name||t('empty');preview.alt=t('preview');
       name.caption.textContent=t(language==='en'?'nameEn':'nameZh');other.caption.textContent=t(language==='en'?'otherZh':'otherEn');
       fields.forEach(f=>{f.caption.textContent=t(f.key);if(f.options){const old=f.control.value;f.control.replaceChildren(...f.options.map(v=>new Option(t(v),v)));f.control.value=f.options.includes(old)?old:'unknown';}else f.control.placeholder=t('unknown');});

@@ -8,7 +8,14 @@
         "tooltip": "all: all references; builtin: bundled; user: custom uploads."
       },
       "language": {
-        "name": "UI / error language"
+        "name": "UI / output language",
+        "tooltip": "Controls the UI, description, and action output language. Saved with the workflow."
+      },
+      "pose_system": {
+        "name": "Pose system"
+      },
+      "angle": {
+        "name": "Pose view"
       }
     },
     "outputs": {
@@ -26,6 +33,43 @@
       },
       "4": {
         "name": "Description"
+      },
+      "5": {
+        "name": "Action"
+      }
+    }
+  },
+  "PoseGallery": {
+    "display_name": "Pose Gallery",
+    "description": "Browse local multi-view pose references, filter by category, or upload a custom image.",
+    "inputs": {
+      "pose_id": {
+        "name": "Pose ID",
+        "tooltip": "Browse the pose gallery, choose a view, then click Use pose. You can also enter an ID directly."
+      },
+      "language": {
+        "name": "UI / output language",
+        "tooltip": "Controls the UI, description, and action output language. Saved with the workflow."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Image"
+      },
+      "1": {
+        "name": "Width"
+      },
+      "2": {
+        "name": "Height"
+      },
+      "3": {
+        "name": "Pose ID"
+      },
+      "4": {
+        "name": "Description"
+      },
+      "5": {
+        "name": "Action"
       }
     }
   }

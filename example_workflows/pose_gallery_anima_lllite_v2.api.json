@@ -2,7 +2,8 @@
   "1": {
     "class_type": "PoseGallery",
     "inputs": {
-      "pose_id": "full_sexy_P031_front"
+      "pose_id": "full_sexy_P024_front",
+      "language": "en"
     },
     "_meta": {
       "title": "Pose Gallery 姿势图库 - 浏览选择本地姿势原图"
@@ -11,16 +12,18 @@
   "2": {
     "class_type": "ImageScaleToTotalPixels",
     "inputs": {
+      "upscale_method": "lanczos",
+      "megapixels": 1,
+      "resolution_steps": 32,
       "image": [
         "1",
         0
-      ],
-      "upscale_method": "lanczos",
-      "megapixels": 1.0,
-      "resolution_steps": 32
+      ]
     },
     "_meta": {
-      "title": "Scale Image to Total Pixels - 等比缩放姿势到约一百万像素"
+      "title": "Scale Image to Total Pixels - 等比缩放姿势到约一百万像素",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "3": {
@@ -32,17 +35,21 @@
       ]
     },
     "_meta": {
-      "title": "Get Image Size - 将姿势尺寸传给潜空间"
+      "title": "Get Image Size - 将姿势尺寸传给潜空间",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "4": {
     "class_type": "UNETLoader",
     "inputs": {
-      "unet_name": "anima/anima-base-v1.0.safetensors",
+      "unet_name": "anima/miaomiaoHarem_anima11.safetensors",
       "weight_dtype": "default"
     },
     "_meta": {
-      "title": "Load Diffusion Model - 加载Anima Base v1基础模型"
+      "title": "Load Diffusion Model - 加载Miaomiao Harem Anima 1.1模型",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "5": {
@@ -53,7 +60,9 @@
       "device": "default"
     },
     "_meta": {
-      "title": "Load CLIP - 加载Anima专用Qwen3文本编码器"
+      "title": "Load CLIP - 加载Anima专用Qwen3文本编码器",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "6": {
@@ -62,7 +71,9 @@
       "vae_name": "qwen_image_vae.safetensors"
     },
     "_meta": {
-      "title": "Load VAE - 加载Qwen Image配套VAE"
+      "title": "Load VAE - 加载Qwen Image配套VAE",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "7": {
@@ -71,12 +82,17 @@
       "name": "anima-lllite-any-test-like-v2.safetensors"
     },
     "_meta": {
-      "title": "Load Model Patch - 加载Anima LLLite v2线稿控制权重"
+      "title": "Load Model Patch - 加载Anima LLLite v2线稿控制权重",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "8": {
     "class_type": "AnimaLLLiteApply",
     "inputs": {
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 0.9,
       "model": [
         "4",
         0
@@ -88,39 +104,45 @@
       "image": [
         "2",
         0
-      ],
-      "strength": 0.75,
-      "start_percent": 0.0,
-      "end_percent": 0.85
+      ]
     },
     "_meta": {
-      "title": "Apply Anima LLLite - 按图库线稿控制人体姿态"
+      "title": "Apply Anima LLLite - 按图库线稿控制人体姿态",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "9": {
     "class_type": "CLIPTextEncode",
     "inputs": {
+      "text": [
+        "103",
+        0
+      ],
       "clip": [
         "5",
         0
-      ],
-      "text": "masterpiece, best quality, score_7, safe, 1girl, adult woman, solo, full body, dark green long sleeve blouse, beige tailored trousers, brown shoes, shoulder-length dark hair, warm sunlit studio, wooden floor, soft natural light, detailed anime illustration, clean expressive face, natural proportions"
+      ]
     },
     "_meta": {
-      "title": "CLIP Text Encode (Prompt) - 描述人物服装场景与画风"
+      "title": "CLIP Text Encode (Prompt) - 描述人物服装场景与画风",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "10": {
     "class_type": "CLIPTextEncode",
     "inputs": {
+      "text": "worst quality, low quality, score_1, score_2, score_3, artist name, blurry, jpeg artifacts, text, watermark, bad anatomy, extra limbs, extra fingers, poorly drawn hands, mannequin, doll, body construction lines, joint circles, nude, nsfw",
       "clip": [
         "5",
         0
-      ],
-      "text": "worst quality, low quality, score_1, score_2, score_3, artist name, blurry, jpeg artifacts, text, watermark, bad anatomy, extra limbs, extra fingers, poorly drawn hands, mannequin, doll, body construction lines, joint circles, nude, nsfw"
+      ]
     },
     "_meta": {
-      "title": "CLIP Text Encode (Prompt) - 排除素体线稿及畸形"
+      "title": "CLIP Text Encode (Prompt) - 排除素体线稿及畸形",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "11": {
@@ -137,21 +159,24 @@
       "batch_size": 1
     },
     "_meta": {
-      "title": "EmptySD3LatentImage - 按控制图尺寸建立十六通道潜空间"
+      "title": "EmptySD3LatentImage - 按控制图尺寸建立十六通道潜空间",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "12": {
     "class_type": "KSampler",
     "inputs": {
+      "seed": 20261030,
+      "steps": 30,
+      "cfg": 4,
+      "sampler_name": "er_sde",
+      "scheduler": "simple",
+      "denoise": 1,
       "model": [
         "8",
         0
       ],
-      "seed": 20261030,
-      "steps": 30,
-      "cfg": 4.0,
-      "sampler_name": "er_sde",
-      "scheduler": "simple",
       "positive": [
         "9",
         0
@@ -163,11 +188,12 @@
       "latent_image": [
         "11",
         0
-      ],
-      "denoise": 1.0
+      ]
     },
     "_meta": {
-      "title": "KSampler - 三十步生成受姿势约束的动漫人物"
+      "title": "KSampler - 三十步生成受姿势约束的动漫人物",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "13": {
@@ -183,33 +209,54 @@
       ]
     },
     "_meta": {
-      "title": "VAE Decode - 解码Anima图像"
+      "title": "VAE Decode - 解码Anima图像",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
   "14": {
     "class_type": "SaveImage",
     "inputs": {
+      "filename_prefix": "images/anima/pose_gallery/results/anima_pose",
       "images": [
         "13",
         0
-      ],
-      "filename_prefix": "images/anima/pose_gallery/results/anima_pose"
+      ]
     },
     "_meta": {
-      "title": "Save Image - 保存人物生成结果及工作流"
+      "title": "Save Image - 保存人物生成结果及工作流",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   },
-  "15": {
-    "class_type": "SaveImage",
+  "102": {
+    "class_type": "show_text_party",
     "inputs": {
-      "images": [
-        "2",
-        0
-      ],
-      "filename_prefix": "images/anima/pose_gallery/poses/pose_reference"
+      "text": [
+        "1",
+        5
+      ]
     },
     "_meta": {
-      "title": "Save Image - 保存实际输入的姿势控制图"
+      "title": "Show Text - 预览动作关键词",
+      "aux_id": "wangweihong/comfyui_LLM_party",
+      "ver": "3790b26a438bb8e77c1ad24d93870f710cc8ae41"
+    }
+  },
+  "103": {
+    "class_type": "StringConcatenate",
+    "inputs": {
+      "string_a": "masterpiece, best quality, score_7, safe, 1girl, adult woman, solo,  dark green long sleeve blouse, beige tailored trousers, brown shoes, shoulder-length dark hair, warm sunlit studio, wooden floor, soft natural light, detailed anime illustration, clean expressive face, natural proportions,Deep kneeling backbend,Holding both heels",
+      "string_b": [
+        "102",
+        0
+      ],
+      "delimiter": ","
+    },
+    "_meta": {
+      "title": "Concatenate Text - 拼接人物提示词与动作关键词",
+      "cnr_id": "comfy-core",
+      "ver": "0.43.0"
     }
   }
 }

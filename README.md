@@ -10,11 +10,13 @@ ComfyUI 本地中文姿势图库节点。参考并改编 [ai-pose-gallery-zh](ht
 
 添加 **image → Pose Gallery → Random Pose Gallery 随机姿势图库**，将 `image` 接入后续工作流或 Preview Image。每次执行会重新随机抽取一张原图，无需点击随机按钮。`origin` 可选 `all`（全部）、`builtin`（内置）或 `user`（自定义）。姿态按单张视角记录抽样，不自动生成或补造其他角度。
 
-原 **PoseGallery** 的输入、固定选图、缓存、5个输出和连线均保持不变。新节点沿用这5个输出，所有数据对应同一张实际抽中的素材；执行后显示编号和预览。新节点的 `language` 切换界面、提示及自定义预览名称语言，端口数据仍沿用原节点语义，不补造内置描述的译文。
+原 **PoseGallery** 保留原有必填输入、固定选图、5 个输出和连线，新增可选 `language` 输入（旧工作流默认 `zh`）。两个节点在原有 5 个输出之后追加第 6 个 `action` 输出，仅包含动作名称，以英文逗号分隔，例如 `Deep kneeling backbend,Holding both heels`。所有数据对应同一张实际抽中的素材；执行后显示编号和预览。两个节点的 `language` 同时控制界面、`description` 和 `action` 输出语言；`en` 输出英文体系、分类、姿势名称和视角，`zh` 保留中文描述。其他输出不变。
 
 抽样可能偶然重复，不受浏览页面筛选影响；缺失原图会跳过，无可用图片时明确报错。保存的预览编号不参与下次抽样。需要固定结果时，将输出 `pose_id` 填入原节点。新节点本身不会启动或追加任务。
 
 导入 [随机姿态预览示例](example_workflows/random_pose_preview.json)，附同名 API 工作流。
+
+随机姿势新增可选 `pose_system`（体系）和 `angle`（视角）；随机人像新增 `section`（`face` / `styling` / `custom`）。这些筛选默认 `all`，旧随机流程行为不变。
 
 ![独立随机姿态节点实测](docs/random-node.png)
 
@@ -22,7 +24,7 @@ ComfyUI 本地中文姿势图库节点。参考并改编 [ai-pose-gallery-zh](ht
 ## 单张上传自定义姿态
 
 1. 在独立图库或节点内嵌图库的顶部点击 **上传姿态**。
-2. 选择一张现成参考图，查看预览，填写名称。另一语言名称可选；未填写时沿用已有名称，不自动翻译。顶部 **中文 / English** 切换新增上传控件、提示和自定义名称的语言，原有内置图库浏览标签保持中文。
+2. 选择一张现成参考图，查看预览，填写名称。另一语言名称可选；未填写时沿用已有名称，不自动翻译。顶部 **中文 / English** 切换整个图库：体系、动作分类、视角、288 组姿势名称、详情、帮助说明及上传控件。切换时保留筛选、当前姿势和视角；语言选择会在下次打开时恢复。
 3. 点击 **保存到图库**。成功后切换到“自定义”来源，清除分类、搜索等筛选，并打开新素材的大图。
 4. 在大图中点击 **使用此姿势 → ComfyUI**，写回当前节点；上传和选择都不会自动运行或排队。
 
@@ -48,16 +50,16 @@ ComfyUI 本地中文姿势图库节点。参考并改编 [ai-pose-gallery-zh](ht
 
 ## 使用
 
-添加 **image → Pose Gallery → Pose Gallery 姿势图库**，点击“浏览姿势图库”，按中文关键词、编号或 ID 搜索，使用体系、动作和视角筛选。点卡片进入大图，切换视角，点击“使用此姿势 → ComfyUI”。所选 ID 会保存在节点及工作流中，节点显示当前原图。
+添加 **image → Pose Gallery → Pose Gallery 姿势图库**，点击“浏览姿势图库”，按中英文关键词、编号或 ID 搜索，使用体系、动作和视角筛选。点卡片进入大图，切换视角，点击“使用此姿势 → ComfyUI”。所选 ID 会保存在节点及工作流中，节点显示当前原图。
 
-输出：`image`（RGB，900×1200）、`width`、`height`、`pose_id`、`description`。输出 `image` 可连接 Depth Anything、图像预览及其他图像节点。不自动入队；用户点击 ComfyUI“运行”开始生成。
+输出：`image`（RGB，900×1200）、`width`、`height`、`pose_id`、`description`、`action`。`action` 只保留姿势名称，将 `·` / `・` 分隔符替换为英文逗号，不附加体系、分类或视角，并跟随 `language` 选择语言。固定选图节点的语言输入会与图库语言选择同步，并随工作流保存；切换语言后重新运行，`description` 才会更新。自定义素材使用已填写的对应语言名称，未提供译名的自定义文字仍沿用原文。输出 `image` 可连接 Depth Anything、图像预览及其他图像节点。不自动入队；用户点击 ComfyUI“运行”开始生成。
 
 ## 工作流选择
 
 | 工作流 | 输入与用途 | 本地实测 |
 | --- | --- | --- |
 | [MOSS 深度控制参考版](example_workflows/pose_gallery_moss_sft50_reference.json) | 图库姿势 → Depth Anything 深度图 → 根据文字生成角色 | SFT 50 步，ER-SDE，896×1184，约 46.4 秒 |
-| [Anima 动漫姿态生图](example_workflows/pose_gallery_anima_lllite_v2.json) | 图库线稿 + 文字 → Anima LLLite v2 生成动漫人物 | 30 步、CFG4，新增8组实测，约9.4秒/张（模型已加载） |
+| [Anima 动漫姿态生图](example_workflows/pose_gallery_anima_lllite_v2.json) | 图库线稿 + 文字 → Anima LLLite v2 生成动漫人物 | Miaomiao Harem Anima 1.1、动作关键词联动，30 步、CFG4 |
 | [Qwen Image 2.1 姿态编辑](example_workflows/pose_gallery_qwen21_pose_edit.json) | 图库姿势 + 人物参考 → 保留人物外观并迁移姿态 | 25 步，Euler/simple，896×1184，约 17 秒/张（模型已加载） |
 | [Qwen Image 2.1 双人姿态编辑](example_workflows/02_QwenImage2.1_PoseGallery_双人姿态编辑实测.json) | 双人姿势 + 两张人物参考，收录本机保存配置；[输入顺序和使用说明](example_workflows/qwen21_pair_pose_gallery.md) | 25 步，Euler/simple；本次收录仅做结构与素材校验 |
 | [Krea2 深度控制](example_workflows/pose_gallery_krea2_depth.json) | 图库姿势 → Depth Anything V2 → Krea2 Turbo 深度控制文生图 | 8 步，ER-SDE，896×1184，热加载约 9.4 秒 |
@@ -198,13 +200,13 @@ LoRA 强度 1，25 步、CFG 1、Euler/simple、种子 20261029，不叠加 Turb
 
 原图、深度图和成图分别保存在 `output/images/krea2/pose_gallery/poses/`、`depth/` 和 `results/`。目前只验证上述两组，手脚细节和精确关节角度仍可能偏离参考；详细记录见[实测摘要](example_workflows/pose_gallery_krea2_validation.json)。
 
-## Anima Base v1 · 图库姿态生图
+## Anima · 图库姿态与动作关键词联动
 
-导入 [Anima LLLite v2 工作流](example_workflows/pose_gallery_anima_lllite_v2.json)，按[依赖和操作说明](example_workflows/anima_pose_gallery.md)准备主模型、编码器、VAE及LLLite v2控制权重。在Pose Gallery选择姿势后，线稿直接驱动动漫人物生成；提示词可专注描述服装、画风与场景。
+导入 [Anima LLLite v2 工作流](example_workflows/pose_gallery_anima_lllite_v2.json)，按[依赖和操作说明](example_workflows/anima_pose_gallery.md)准备主模型、编码器、VAE及LLLite v2控制权重。示例已替换为本地工作流 `7e7b00cd-133b-4b2f-8212-1ee3d87338ea` 的已保存版本：Miaomiao Harem Anima 1.1，图库线稿控制姿态，`action → Show Text → Concatenate Text` 将动作关键词追加到正向提示词。原提示词、连线与旁路状态保持来源配置，详见操作说明。
 
-30步、CFG4、ER-SDE/simple、控制强度0.75，输出896×1184。新增8组测试使用同一提示词与种子，模型已加载时平均约9.4秒/张。主要动作有跟随；单膝跪和俯卧存在肩部构造线转成服装/装饰的问题，蹲姿头部角度有偏移，其他姿势与随机种子仍需分别评估。
+新版默认 30 步、CFG4、ER-SDE/simple、控制强度 1、范围 0–0.9，约 1MP 等比缩放。下方 8 组结果属于旧 Anima Base v1 均衡工作流（强度 0.75），当时模型已加载时平均约 9.4 秒/张。主要动作有跟随；单膝跪和俯卧存在肩部构造线转成服装/装饰的问题，蹲姿头部角度有偏移，其他姿势与随机种子仍需分别评估。
 
-![Anima工作流实测截图](docs/images/anima/workflow.png)
+![旧Anima Base v1工作流历史实测截图](docs/images/anima/workflow.png)
 
 每组左侧为图库姿势，右侧为实际Anima生成结果：
 

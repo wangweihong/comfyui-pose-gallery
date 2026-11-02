@@ -1,6 +1,7 @@
-// Translations are scoped to the new random node; existing selectors are unchanged.
+// Random-node messages extend the shared gallery vocabulary.
 (function(root){
   const EN={
+  "姿态体系":"Pose system", "姿态视角":"Pose view", "人像类型":"Reference type",
   "本次随机姿态预览": "Random pose preview",
   "随机姿态预览加载失败，请检查素材原图。": "The random preview could not load. Check the original image.",
   "上次运行结果": "Last execution result",
@@ -19,7 +20,7 @@
   const normalize=value=>value==='en'?'en':'zh';
   function preferred(){try{return normalize(localStorage.getItem(LANGUAGE_KEY));}catch{return 'zh';}}
   function persist(value){try{localStorage.setItem(LANGUAGE_KEY,normalize(value));}catch{}}
-  function translate(text,language){return language==='en'?(EN[text]??text):text;}
+  function translate(text,language){return language==='en'?(EN[text]??root.PoseGalleryI18n?.translate(text,language)??text):text;}
   const api={preferred,persist,normalize,translate};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.RandomPoseI18n=api;
 })(typeof window!=='undefined'?window:globalThis);
