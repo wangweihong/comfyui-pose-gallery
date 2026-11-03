@@ -64,10 +64,14 @@ class RandomPoseGallery(PoseGallery):
                 "optional": {"language": (["zh", "en"], {"default": "zh",
                     "tooltip": "界面、提示、description 和 action 输出语言。Language for the UI, errors, description, and action outputs."}),
                     "pose_system": (["all", "全身单人・标准系", "全身单人・性感系", "上半身单人", "双人缠绵", "自定义"], {"default": "all"}),
-                    "angle": (["all", "正面", "俯视", "仰视", "侧面", "斜侧", "未分类"], {"default": "all"})}}
+                    "angle": (["all", "正面", "俯视", "仰视", "侧面", "斜侧", "未分类"], {"default": "all"}),
+                    "pose_id": ("STRING", {"default": "", "multiline": False,
+                        "tooltip": "骰子当前选中的姿态；锁定后使用此图。Current dice selection; used while locked."}),
+                    "locked": ("BOOLEAN", {"default": False,
+                        "tooltip": "锁定当前姿态，点击骰子和运行工作流都不再随机。Keep this pose for dice clicks and workflow runs."})}}
 
     FUNCTION = "load_random"
-    DESCRIPTION = "每次运行工作流时，从可用姿态原图中自动随机抽取一张，输出参考图、描述和动作关键词。"
+    DESCRIPTION = "点击骰子即可随机预览，无需运行工作流；锁定后固定当前姿态，解锁后每次运行重新随机。"
 
     @classmethod
     def _candidates(cls, origin="all", language="zh", pose_system="all", angle="all"):
@@ -99,7 +103,11 @@ class RandomPoseGallery(PoseGallery):
         return available
 
     @classmethod
-    def VALIDATE_INPUTS(cls, origin="all", language="zh", pose_system="all", angle="all"):
+    def VALIDATE_INPUTS(cls, origin="all", language="zh", pose_system="all", angle="all", pose_id="", locked=False):
+        if locked:
+            if not pose_id:
+                return "Draw a pose before locking" if language == "en" else "请先点击骰子选择姿态，再锁定"
+            return super().VALIDATE_INPUTS(pose_id, language)
         try:
             cls._candidates(origin, language, pose_system, angle)
         except (ValueError, OSError) as exc:
@@ -107,23 +115,45 @@ class RandomPoseGallery(PoseGallery):
         return True
 
     @classmethod
-    def IS_CHANGED(cls, origin="all", language="zh", pose_system="all", angle="all"):
+    def IS_CHANGED(cls, origin="all", language="zh", pose_system="all", angle="all", pose_id="", locked=False):
+        if locked:
+            return super().IS_CHANGED(pose_id, language)
         # Re-execute for every queued prompt; the fingerprint is JSON-safe.
         return uuid.uuid4().hex
 
-    def load_random(self, origin="all", language="zh", pose_system="all", angle="all"):
-        selected = random.choice(self._candidates(origin, language, pose_system, angle))
-        result = super().load_pose(selected["id"], language)
-        if selected["origin"] == "user":
-            name = selected["name_en"] if language == "en" else selected["name_zh"]
-        else:
-            name = (selected.get("name_en") if language == "en" else selected.get("姿势名称")) or selected.get("姿势名称") or selected["id"]
+    @staticmethod
+    def preview_data(selected, language="zh"):
         name_zh = selected.get("name_zh") or selected.get("姿势名称") or selected["id"]
         name_en = selected.get("name_en") or _random_catalog.english_labels().get(name_zh, name_zh)
-        return {"ui": {"pose_id": [result[3]], "name": [name], "name_zh": [name_zh], "name_en": [name_en]}, "result": result}
+        return {"pose_id": selected["id"], "name": name_en if language == "en" else name_zh,
+                "name_zh": name_zh, "name_en": name_en}
+
+    def load_random(self, origin="all", language="zh", pose_system="all", angle="all", pose_id="", locked=False):
+        if locked:
+            if not pose_id:
+                raise ValueError("Draw a pose before locking" if language == "en" else "请先点击骰子选择姿态，再锁定")
+            selected = pose(pose_id)
+        else:
+            selected = random.choice(self._candidates(origin, language, pose_system, angle))
+        result = super().load_pose(selected["id"], language)
+        return {"ui": {key: [value] for key, value in self.preview_data(selected, language).items()}, "result": result}
 
 
 routes = PromptServer.instance.routes
+
+@routes.get('/pose_gallery/random')
+async def random_preview_route(request):
+    """Select metadata only; never enqueue a prompt or load an image tensor."""
+    query = request.query
+    try:
+        def select():
+            candidates = RandomPoseGallery._candidates(query.get('origin', 'all'), query.get('language', 'zh'),
+                                                       query.get('pose_system', 'all'), query.get('angle', 'all'))
+            alternatives = [row for row in candidates if row['id'] != query.get('exclude_id')]
+            return RandomPoseGallery.preview_data(random.choice(alternatives or candidates), query.get('language', 'zh'))
+        return web.json_response(await asyncio.to_thread(select), headers={"Cache-Control": "no-store"})
+    except (ValueError, OSError) as exc:
+        return web.json_response({'error': str(exc)}, status=400, headers={"Cache-Control": "no-store"})
 
 @routes.get('/pose_gallery/catalog')
 async def catalog_route(request):

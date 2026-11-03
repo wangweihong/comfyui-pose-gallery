@@ -120,4 +120,57 @@ class RandomNodeTests(unittest.TestCase):
         with patch.object(self.module,'records',wraps=self.module.records) as reader:
             self.node._candidates();self.assertEqual(reader.call_count,1)
 
+    def test_locked_selection_never_resamples_and_ignores_changed_filters(self):
+        identity = self.custom['id']
+        inputs = dict(origin='builtin', pose_system='Full body · Standard', angle='Front',
+                      pose_id=identity, locked=True, language='en')
+        with patch.object(self.module.random, 'choice', side_effect=AssertionError('Locked node must not draw')):
+            self.assertIs(self.node.VALIDATE_INPUTS(**inputs), True)
+            results = [self.node().load_random(**inputs) for _ in range(3)]
+            self.assertEqual(self.node.IS_CHANGED(**inputs), self.node.IS_CHANGED(**inputs))
+        expected = self.old().load_pose(identity, 'en')
+        for result in results:
+            self.assertEqual(result['result'][1:], expected[1:])
+            self.assertTrue(result['result'][0].equal(expected[0]))
+            self.assertEqual(result['ui']['pose_id'], [identity])
+        self.assertNotEqual(self.node.IS_CHANGED(**inputs), self.node.IS_CHANGED(**dict(inputs, language='zh')))
+        with patch.object(self.module.random, 'choice', return_value=self.builtin) as choice:
+            self.assertEqual(self.node().load_random(pose_id=identity, locked=False)['result'][3], self.builtin['id'])
+            choice.assert_called_once()
+
+    def test_missing_locked_selection_fails_instead_of_drawing_a_replacement(self):
+        with patch.object(self.module.random, 'choice', side_effect=AssertionError('Must not draw')):
+            self.assertIn('先点击骰子', self.node.VALIDATE_INPUTS(locked=True))
+            with self.assertRaises(ValueError):
+                self.node().load_random(locked=True)
+            identity = self.custom['id']
+            (self.catalog.USER_LIBRARY/self.custom[self.full_field]).unlink()
+            self.assertIsNot(self.node.VALIDATE_INPUTS(pose_id=identity, locked=True), True)
+            with self.assertRaises((ValueError, FileNotFoundError)):
+                self.node().load_random(pose_id=identity, locked=True)
+
+    def test_preview_route_selects_metadata_only_with_current_filters_and_no_repeat(self):
+        import asyncio
+        async def scenario():
+            from aiohttp import web
+            from aiohttp.test_utils import TestClient, TestServer
+            app = web.Application()
+            app.add_routes(self.module.routes)
+            with patch.object(self.old, 'load_pose', side_effect=AssertionError('Preview must not load tensors')):
+                async with TestClient(TestServer(app)) as client:
+                    response = await client.get('/pose_gallery/random', params={'exclude_id': self.builtin['id'], 'language': 'en'})
+                    self.assertEqual(response.status, 200)
+                    self.assertEqual(response.headers['Cache-Control'], 'no-store')
+                    result = await response.json()
+                    self.assertEqual(result['pose_id'], self.custom['id'])
+                    self.assertEqual(result['name'], 'My reference')
+                    response = await client.get('/pose_gallery/random', params={'origin': 'builtin', 'pose_system': 'Full body · Sensual', 'angle': 'Front', 'exclude_id': self.builtin['id']})
+                    self.assertEqual(response.status, 200)
+                    self.assertEqual((await response.json())['pose_id'], self.builtin['id'])
+                    for params in ({'origin': 'bad'}, {'origin': 'user', 'angle': 'Front'}):
+                        response = await client.get('/pose_gallery/random', params=params)
+                        self.assertEqual(response.status, 400)
+                        self.assertIn('error', await response.json())
+        asyncio.run(scenario())
+
 if __name__=='__main__':unittest.main()

@@ -1,7 +1,7 @@
 {
   "RandomPoseGallery": {
     "display_name": "Random Pose Gallery 随机姿势图库",
-    "description": "每次运行自动重新抽取参考图，原节点保持不变。",
+    "description": "点击骰子随机预览姿态，锁定后运行工作流保持当前姿态。",
     "inputs": {
       "origin": {
         "name": "随机来源",
@@ -16,6 +16,14 @@
       },
       "angle": {
         "name": "姿态视角"
+      },
+      "pose_id": {
+        "name": "当前姿态编号",
+        "tooltip": "当前选择的姿态，锁定后运行工作流使用此图。"
+      },
+      "locked": {
+        "name": "锁定随机",
+        "tooltip": "保持当前姿态并禁用骰子。"
       }
     },
     "outputs": {

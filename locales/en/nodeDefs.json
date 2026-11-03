@@ -1,7 +1,7 @@
 {
   "RandomPoseGallery": {
     "display_name": "Random Pose Gallery",
-    "description": "Draw a reference on every execution; the original selector is unchanged.",
+    "description": "Click the dice to preview a random pose. Lock the selection to keep it for workflow runs.",
     "inputs": {
       "origin": {
         "name": "Random source",
@@ -16,6 +16,14 @@
       },
       "angle": {
         "name": "Pose view"
+      },
+      "pose_id": {
+        "name": "Current pose ID",
+        "tooltip": "The selected pose. Workflow runs keep this reference while locked."
+      },
+      "locked": {
+        "name": "Lock random selection",
+        "tooltip": "Keep the current pose and disable the dice."
       }
     },
     "outputs": {
