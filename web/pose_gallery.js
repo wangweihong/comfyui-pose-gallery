@@ -21,10 +21,10 @@ app.registerExtension({
         dialog?.remove(); dialog = null; frame = null;
       };
       const previewBox = document.createElement("div");
-      previewBox.style.cssText = "position:relative;width:100%;height:100%;background:#f8f7f3;border-radius:8px;overflow:hidden;";
+      previewBox.style.cssText = "position:relative;width:100%;height:100%;min-height:300px;max-height:500px;contain:size;box-sizing:border-box;background:#f8f7f3;border-radius:8px;overflow:hidden;";
       const preview = document.createElement("img");
       preview.alt = t("所选姿势预览");
-      preview.style.cssText = "display:block;width:100%;height:100%;object-fit:contain;";
+      preview.style.cssText = "display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain;";
       const previewError = document.createElement("div");
       previewError.setAttribute("role", "status");
       previewError.setAttribute("aria-live", "polite");
@@ -123,8 +123,9 @@ app.registerExtension({
       }
       const toolbar = document.createElement("div"); toolbar.style.cssText = "width:100%;height:42px;display:flex;align-items:center;";
       toolbar.append(browse);
-      node.addDOMWidget("pose_browser", "button", toolbar, { serialize:false, hideOnZoom:false, getMinHeight:()=>42, getMaxHeight:()=>42 });
-      node.addDOMWidget("pose_preview", "image", previewBox, { serialize: false, hideOnZoom: false, getMinHeight: () => 300, getMaxHeight: () => 500 });
+      // Native widget types (e.g. button) replace this DOM in Nodes 2.0.
+      node.addDOMWidget("pose_browser", 'pose_gallery_control', toolbar, { serialize:false, hideOnZoom:false, getMinHeight:()=>42, getMaxHeight:()=>42 });
+      node.addDOMWidget("pose_preview", 'pose_gallery_preview', previewBox, { serialize: false, hideOnZoom: false, getMinHeight: () => 300, getMaxHeight: () => 500 });
       const configured = node.onConfigure;
       node.onConfigure = function (config) {
         configured?.apply(this, arguments);

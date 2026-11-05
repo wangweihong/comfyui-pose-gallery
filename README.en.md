@@ -2,6 +2,8 @@
 
 [简体中文](README.md) · **English**
 
+Supports both the legacy canvas and **Nodes 2.0** (tested with ComfyUI frontend 1.57.4), including gallery selection, previews, dice and locking. Hard-refresh the browser after updating to load the new frontend scripts.
+
 A local pose reference gallery for ComfyUI. Built-in assets, existing IDs and the node's 5 outputs remain compatible with existing workflows. See the [Chinese README](README.md) for the original dataset, examples, model configurations and source notices.
 
 

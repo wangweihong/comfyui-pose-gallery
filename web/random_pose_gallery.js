@@ -54,12 +54,12 @@ app.registerExtension({
           widget.serializeValue = () => values.find(value => value === widget.value || shared.translate(value,'en') === widget.value) ?? widget.value;
         });
       }
-      const box=document.createElement('div');box.style.cssText='display:flex;flex-direction:column;gap:8px;width:100%;height:100%;background:#f7f5f0;color:#343c2d;border-radius:8px;padding:10px;box-sizing:border-box;';
-      const image=document.createElement('img');image.alt=t('本次随机姿态预览');image.style.cssText='display:none;width:100%;flex:1;min-height:0;object-fit:contain;';
-      const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.style.cssText='font:12px/1.6 sans-serif;overflow-wrap:anywhere;margin:0;';
-      const id=document.createElement('code');id.style.cssText='font:11px/1.5 monospace;overflow-wrap:anywhere;';
+      const box=document.createElement('div');box.style.cssText='display:flex;flex-direction:column;gap:8px;width:100%;height:100%;min-height:310px;max-height:500px;contain:size;overflow:hidden;background:#f7f5f0;color:#343c2d;border-radius:8px;padding:10px;box-sizing:border-box;';
+      const image=document.createElement('img');image.alt=t('本次随机姿态预览');image.style.cssText='display:none;width:100%;height:0;flex:1 1 0;min-height:0;min-width:0;object-fit:contain;';
+      const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.style.cssText='flex-shrink:0;font:12px/1.6 sans-serif;overflow-wrap:anywhere;margin:0;';
+      const id=document.createElement('code');id.style.cssText='flex-shrink:0;font:11px/1.5 monospace;overflow-wrap:anywhere;';
       box.append(image,status,id);
-      const toggle=document.createElement('button');toggle.type='button';toggle.style.cssText='width:100%;height:36px;border:1px solid #b6c1aa;background:#e9ecdf;color:#343c2d;border-radius:6px;cursor:pointer;font:12px sans-serif;';
+      const toggle=document.createElement('button');toggle.type='button';toggle.style.cssText='width:100%;height:36px;min-height:36px;flex-shrink:0;border:1px solid #b6c1aa;background:#e9ecdf;color:#343c2d;border-radius:6px;cursor:pointer;font:12px sans-serif;';
       const dice=document.createElement('button');dice.type='button';dice.style.cssText=toggle.style.cssText;
       const isLocked=()=>lockWidget?.value===true;
       function render(){
@@ -156,11 +156,12 @@ app.registerExtension({
       };});
       toggle.onclick=()=>{setLanguage(language==='en'?'zh':'en');app.graph.change();};
       if(langWidget){const previous=langWidget.callback;langWidget.callback=function(value){previous?.apply(this,arguments);setLanguage(value);app.graph.change();};}
-      node.addDOMWidget('random_language','button',toggle,{serialize:false,hideOnZoom:false,getMinHeight:()=>40,getMaxHeight:()=>40});
+      // Native widget types (e.g. button) replace this DOM in Nodes 2.0.
+      node.addDOMWidget('random_language','pose_gallery_control',toggle,{serialize:false,hideOnZoom:false,getMinHeight:()=>40,getMaxHeight:()=>40});
       // Keep the existing language widget in place for saved workflows.
-      const diceToolbar=document.createElement('div');diceToolbar.style.cssText='width:100%;';diceToolbar.append(dice);
-      node.addDOMWidget('random_dice','button',diceToolbar,{serialize:false,hideOnZoom:false,getMinHeight:()=>40,getMaxHeight:()=>40});
-      node.addDOMWidget('random_pose_preview','image',box,{serialize:false,hideOnZoom:false,getMinHeight:()=>310,getMaxHeight:()=>500});
+      const diceToolbar=document.createElement('div');diceToolbar.style.cssText='display:flex;align-items:center;width:100%;height:40px;min-height:40px;max-height:40px;';diceToolbar.append(dice);
+      node.addDOMWidget('random_dice','pose_gallery_control',diceToolbar,{serialize:false,hideOnZoom:false,getMinHeight:()=>40,getMaxHeight:()=>40});
+      node.addDOMWidget('random_pose_preview','pose_gallery_preview',box,{serialize:false,hideOnZoom:false,getMinHeight:()=>310,getMaxHeight:()=>500});
       const executed=node.onExecuted;node.onExecuted=function(message){
         executed?.apply(this,arguments);if(removed)return;
         // A result queued before the user locked a newer choice must not replace it.

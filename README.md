@@ -2,6 +2,8 @@
 
 **简体中文** · [English](README.en.md)
 
+支持旧画布和 **Nodes 2.0**（ComfyUI 前端 1.57.4 实测），包括浏览选图、预览、骰子和锁定。更新后请强制刷新页面加载新版前端脚本。
+
 ComfyUI 本地中文姿势图库节点。参考并改编 [ai-pose-gallery-zh](https://github.com/wangweihong/ai-pose-gallery-zh) 的画廊界面：1,439 张原图，288 组姿势，最多 5 个视角。
 
 
